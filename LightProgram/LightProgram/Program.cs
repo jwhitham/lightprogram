@@ -44,6 +44,7 @@ namespace LightProgram
         public static int num_programs = 8;
         public static int program_size = 128;
         public static int program_name_size = 8;
+        public static int max_program_size = program_size - program_name_size;
 
 
         public virtual Reply GetReply()
@@ -722,8 +723,9 @@ namespace LightProgram
     {
         public List<Instruction> contents = null;
         public static int program_too_big = -1;
-        public static int max_program_size = SerialComms.program_size - SerialComms.program_name_size;
         public int end_time = 0;
+        public string name = null;
+        public int num_bytes = 0;
 
         public InstructionList(byte[] program_bytes = null)
         {
@@ -734,14 +736,18 @@ namespace LightProgram
             }
         }
 
-        public void updateTimings()
+        public void updateProperties()
         {
             int time = 0;
+            this.num_bytes = 0;
+            this.contents.Add(new Instruction(InstructionType.InstructionRestart));
             foreach (Instruction inst in this.contents)
             {
                 inst.start_time = time;
                 time += inst.getTime();
+                this.num_bytes += inst.getSize();
             }
+            this.contents.RemoveAt(this.contents.Count() - 1);
             this.end_time = time;
         }
 
@@ -752,7 +758,7 @@ namespace LightProgram
 
             // decode each instruction in turn
             this.contents.Clear();
-            for (int a = 0; (a < program_bytes.Length) && (a < max_program_size); )
+            for (int a = 0; (a < program_bytes.Length) && (a < Comms.max_program_size); )
             {
                 Instruction inst = new Instruction();
                 int i;
@@ -787,7 +793,25 @@ namespace LightProgram
                 // all other instructions go into the list
                 this.contents.Add(inst);
             }
-            updateTimings();
+
+            // decode program name (if present)
+            this.name = "";
+            for (int i = Comms.program_size - Comms.program_name_size; (i < program_bytes.Length) && (i < Comms.program_size); i++)
+            {
+                int ch = (int)program_bytes[i];
+                if ((ch < 32) || (ch > 126))
+                {
+                    ch = (int)'?';
+                }
+                this.name += (char)((byte)ch);
+            }
+            updateProperties();
+        }
+
+        public string getProperties()
+        {
+            return this.end_time + " milliseconds, " +
+                this.contents.Count + " instructions, " + this.num_bytes + " bytes";
         }
 
         public int encode(byte[] program_bytes)
@@ -809,7 +833,7 @@ namespace LightProgram
                 for (i = 0; i < sz; i++)
                 {
                     if ((a >= program_bytes.Length)
-                        || (a >= max_program_size))
+                        || (a >= Comms.max_program_size))
                     {
                         return program_too_big;
                     }
@@ -819,6 +843,27 @@ namespace LightProgram
             }
             // remove restart instruction
             this.contents.RemoveAt(this.contents.Count() - 1);
+
+            // encode name
+            for (i = 0; (i < Comms.program_name_size) && (i < name.Length); i++)
+            {
+                byte b;
+                try
+                {
+                    b = (byte)name[i];
+                }
+                catch (Exception)
+                {
+                    b = (byte)'?';
+                }
+
+                program_bytes[i + Comms.max_program_size] = b;
+            }
+            for (; i < Comms.program_name_size; i++)
+            {
+                program_bytes[i + Comms.max_program_size] = (byte)' ';
+            }
+
             return a;
         }
     }

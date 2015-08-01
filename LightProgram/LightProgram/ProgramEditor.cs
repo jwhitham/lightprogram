@@ -40,14 +40,22 @@ namespace LightProgram
             InitializeComponent();
         }
 
-        public void SetProgram(InstructionList programList)
+        public void SetProgram(InstructionList inst_list)
         {
+            // make a copy of the program
+            byte[] tmp = new byte[Comms.program_size];
+            inst_list.encode(tmp);
+            InstructionList copy_inst_list = new InstructionList(tmp);
+
+            // update the GUI with the details
             this.instructions.Items.Clear();
-            foreach (Instruction inst in programList.contents)
+            foreach (Instruction inst in copy_inst_list.contents)
             {
                 this.instructions.Items.Add(new InstructionEditor (inst));
             }
             this.instructions.Refresh();
+            this.namebox.Text = copy_inst_list.name;
+            this.properties.Text = copy_inst_list.getProperties();
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -65,38 +73,88 @@ namespace LightProgram
             this.Hide();
         }
 
-        private void runClicked(object sender, EventArgs e)
+        public enum ModeType
         {
-            InstructionList instruction_list = new InstructionList();
+            RunMode, CheckMode, SaveMode
+        }
+
+        private void checkProgramThenDoSomething(ModeType mode)
+        {
+            InstructionList copy_inst_list = new InstructionList();
             foreach (InstructionEditor inst_ed in this.instructions.Items)
             {
-                instruction_list.contents.Add(inst_ed.inst);
+                copy_inst_list.contents.Add(inst_ed.inst);
             }
+            copy_inst_list.name = this.namebox.Text;
+
+            // create a programming command
             Command c = new Command();
-            c.t = CommandType.CommandRunTemporaryProgram;
             c.program_bytes = new byte[Comms.program_size];
-            int rc = instruction_list.encode(c.program_bytes);
-            instruction_list.updateTimings();
+
+            // translate the program to bytes
+            int rc = copy_inst_list.encode(c.program_bytes);
+            copy_inst_list.updateProperties();
+            string err = "";
+
             if (rc == InstructionList.program_too_big)
             {
-                MessageBox.Show("This program is too large: there are too many instructions.");
+                err = "This program is too large: there are too many instructions.";
             }
             else if (rc <= 0)
             {
-                MessageBox.Show("This program contains no instructions: add at least one.");
+                err = "This program contains no instructions: add at least one.";
             }
-            else if (instruction_list.end_time <= 0)
+            else if (copy_inst_list.end_time <= 0)
             {
-                MessageBox.Show("This program has no running time. It must contain some delays.");
+                err = "This program has no running time. It must contain some delays.";
             }
-            else
+
+            SetProgram(copy_inst_list);
+            switch (mode)
             {
-                this.comms.SendCommand(c);
+                case ModeType.RunMode:
+                    // Start running the program
+                    if (err != "")
+                    {
+                        MessageBox.Show(err);
+                    }
+                    else
+                    {
+                        c.t = CommandType.CommandRunTemporaryProgram;
+                        this.comms.SendCommand(c);
+                    }
+                    break;
+                case ModeType.CheckMode:
+                    // Just checking, no other action
+                    if (err != "")
+                    {
+                        this.properties.Text = err;
+                    }
+                    break;
+                case ModeType.SaveMode:
+                    // Are you sure you want to save?
+                    break;
             }
+        }
+
+        private void runClicked(object sender, EventArgs e)
+        {
+            checkProgramThenDoSomething(ModeType.RunMode);
+        }
+
+        private void updateClicked(object sender, EventArgs e)
+        {
+            checkProgramThenDoSomething(ModeType.CheckMode);
         }
 
         private void ProgramEditor_Load(object sender, EventArgs e)
         {
+
+        }
+
+        private void saveClicked(object sender, EventArgs e)
+        {
+            checkProgramThenDoSomething(ModeType.SaveMode);
 
         }
     }

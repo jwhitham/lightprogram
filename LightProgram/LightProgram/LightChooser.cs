@@ -19,10 +19,7 @@ namespace LightProgram
         public class ProgramListItem
         {
             public int program_number = 0;
-            public byte[] program_bytes = null;
             public InstructionList inst_list = null;
-            public int num_insts = 0;
-            public int num_bytes = 0;
 
             public ProgramListItem(int program_number, byte[] program_bytes)
             {
@@ -32,10 +29,7 @@ namespace LightProgram
             
             public void updateProgram(byte[] program_bytes)
             {
-                this.program_bytes = program_bytes;
                 this.inst_list = new InstructionList(program_bytes);
-                byte[] check = new byte[Comms.program_size];
-                this.num_bytes = this.inst_list.encode (check);
             }
 
             public string Text { get; set; }
@@ -46,23 +40,11 @@ namespace LightProgram
                 {
                     return "Program " + program_number + " is empty";
                 }
-                string last_eight = "";
-                int j = program_bytes.Length - Comms.program_name_size;
-                if (j > 1)
+                else
                 {
-                    for (int i = j; i < program_bytes.Length; i++)
-                    {
-                        int ch = (int)program_bytes[i];
-                        if ((ch < 32) || (ch > 126))
-                        {
-                            ch = (int)'?';
-                        }
-                        last_eight += (char)((byte) ch);
-                    }
+                    return "Program " + program_number + ": '" + this.inst_list.name
+                       + "' (" + this.inst_list.getProperties() + ")";
                 }
-                return "Program " + program_number + ": '" + last_eight +
-                    "' (" + this.inst_list.end_time + " milliseconds, " +
-                    this.inst_list.contents.Count + " instructions, " + this.num_bytes + " bytes)";
             }
         };
 

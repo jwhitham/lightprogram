@@ -6,17 +6,76 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.IO;
 
 namespace LightProgram
 {
     public partial class Simulator : Form
     {
         private SimulatorComms simulatorComms = null;
+        public const string program_store = "simulated_eeprom_";
 
         public Simulator(SimulatorComms simulatorComms)
         {
             this.simulatorComms = simulatorComms;
             InitializeComponent();
+        }
+
+        private byte[] readProgram(int program_number)
+        {
+            string name = program_store + program_number;
+            BinaryReader reader = null;
+            byte[] output = null;
+
+            try
+            {
+                reader = new BinaryReader(File.Open(name, FileMode.Open));
+            }
+            catch (Exception)
+            { }
+            try
+            {
+                output = reader.ReadBytes(Comms.program_size);
+            }
+            catch (Exception)
+            { }
+            try
+            {
+                reader.Close();
+            }
+            catch (Exception)
+            { }
+            if ((output == null) || (output.Length != Comms.program_size))
+            {
+                output = new byte[Comms.program_size];
+                writeProgram(program_number, output);
+            }
+            return output;
+        }
+
+        private void writeProgram (int program_number, byte[] output)
+        {
+            string name = program_store + program_number;
+            BinaryWriter writer = null;
+
+            try
+            {
+                writer = new BinaryWriter(File.Open(name, FileMode.Create));
+            }
+            catch (Exception)
+            { }
+            try
+            {
+                writer.Write(output);
+            }
+            catch (Exception)
+            { }
+            try
+            {
+                writer.Close();
+            }
+            catch (Exception)
+            { }
         }
 
         public void RefreshSimulation()
@@ -39,10 +98,12 @@ namespace LightProgram
                         {
                             r = new Reply();
                             r.program_number = i;
-                            r.program_bytes = new byte[Comms.program_size];
+                            r.program_bytes = readProgram(i);
+
                             r.t = ReplyType.ReplyProgram;
                             this.simulatorComms.SimulatorSendReply(r);
                         }
+
                         r = new Reply();
                         r.errorCode = "Simulated mode";
                         r.t = ReplyType.ReplyMsg;

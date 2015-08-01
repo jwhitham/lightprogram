@@ -63,6 +63,7 @@
             this.button1.TabIndex = 1;
             this.button1.Text = "Run";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.runClicked);
             // 
             // button2
             // 
@@ -91,6 +92,7 @@
             this.button4.TabIndex = 4;
             this.button4.Text = "Done";
             this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.doneClicked);
             // 
             // ProgramEditor
             // 
@@ -105,6 +107,7 @@
             this.Name = "ProgramEditor";
             this.Text = "Program Editor";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.closeClicked);
+            this.Load += new System.EventHandler(this.ProgramEditor_Load);
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
 

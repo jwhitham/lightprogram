@@ -49,6 +49,7 @@ namespace LightProgram
             {
                 this.simulator.RefreshSimulation();
             }
+            RefreshText();
         }
 
         private void RefreshPorts()
@@ -105,6 +106,9 @@ namespace LightProgram
             {
                 this.serialPortList.SelectedIndex = 0;
             }
+        }
+        private void RefreshText()
+        {
             // update the text window
             while (this.comms != null)
             {
@@ -118,7 +122,7 @@ namespace LightProgram
                         this.AppendText("Connected");
                         if (this.lightChooser == null)
                         {
-                            this.lightChooser = new LightChooser(this.comms);
+                            this.lightChooser = new LightChooser(this.comms, this);
                         }
                         this.lightChooser.SetColour(r.red, r.green, r.blue);
                         this.lightChooser.Show();
@@ -175,7 +179,7 @@ namespace LightProgram
             {
                 SimulatorComms sc = new SimulatorComms();
                 this.comms = (Comms) sc;
-                this.simulator = new Simulator(sc);
+                this.simulator = new Simulator(sc, this);
             }
             else
             {
@@ -189,19 +193,22 @@ namespace LightProgram
         {
             if (this.lightChooser != null)
             {
-                this.lightChooser.Close();
+                Form a = (Form) this.lightChooser;
                 this.lightChooser = null;
+                a.Close();
             }
 
             if (this.simulator != null)
             {
-                this.simulator.Close();
+                Form a = (Form)this.simulator;
                 this.simulator = null;
+                a.Close();
             }
             if (this.comms != null)
             {
-                this.comms.Disconnect();
+                Comms a = this.comms;
                 this.comms = null;
+                a.Disconnect();
             }
         }
 

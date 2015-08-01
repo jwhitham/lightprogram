@@ -30,6 +30,7 @@
         {
             this.display = new System.Windows.Forms.Label();
             this.light = new System.Windows.Forms.Panel();
+            this.programState = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // display
@@ -38,11 +39,11 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.display.BackColor = System.Drawing.Color.Black;
-            this.display.Font = new System.Drawing.Font("Courier New", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.display.Font = new System.Drawing.Font("Courier New", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.display.ForeColor = System.Drawing.Color.Red;
             this.display.Location = new System.Drawing.Point(96, 9);
             this.display.Name = "display";
-            this.display.Size = new System.Drawing.Size(57, 56);
+            this.display.Size = new System.Drawing.Size(110, 78);
             this.display.TabIndex = 6;
             this.display.Text = "F";
             this.display.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -52,21 +53,34 @@
             this.light.BackColor = System.Drawing.Color.Red;
             this.light.Location = new System.Drawing.Point(12, 9);
             this.light.Name = "light";
-            this.light.Size = new System.Drawing.Size(78, 78);
+            this.light.Size = new System.Drawing.Size(153, 78);
             this.light.TabIndex = 7;
             this.light.Paint += new System.Windows.Forms.PaintEventHandler(this.light_Paint);
+            // 
+            // programState
+            // 
+            this.programState.AutoSize = true;
+            this.programState.ForeColor = System.Drawing.Color.White;
+            this.programState.Location = new System.Drawing.Point(13, 94);
+            this.programState.Name = "programState";
+            this.programState.Size = new System.Drawing.Size(35, 13);
+            this.programState.TabIndex = 8;
+            this.programState.Text = "label1";
             // 
             // Simulator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(165, 96);
+            this.ClientSize = new System.Drawing.Size(218, 122);
+            this.Controls.Add(this.programState);
             this.Controls.Add(this.light);
             this.Controls.Add(this.display);
             this.Name = "Simulator";
             this.Text = "Simulator";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.closeClicked);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -74,5 +88,6 @@
 
         private System.Windows.Forms.Label display;
         private System.Windows.Forms.Panel light;
+        private System.Windows.Forms.Label programState;
     }
 }

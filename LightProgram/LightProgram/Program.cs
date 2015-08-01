@@ -13,7 +13,7 @@ namespace LightProgram
     public enum CommandType
     {
         CommandNone, CommandConnect, CommandSetColour, CommandSetDisplay, CommandExit,
-        CommandRunProgram
+        CommandRunEEPROMProgram, CommandRunTemporaryProgram
     }
     public struct Command
     {
@@ -21,6 +21,8 @@ namespace LightProgram
         public int red, green, blue;
         public int value;
         public string portName;
+        public byte[] program_bytes;
+        public int program_number;
     }
     public enum ReplyType
     {
@@ -69,7 +71,7 @@ namespace LightProgram
         public void RunProgram(int program_number)
         {
             Command c = new Command();
-            c.t = CommandType.CommandRunProgram;
+            c.t = CommandType.CommandRunEEPROMProgram;
             c.value = program_number;
             SendCommand(c);
         }
@@ -473,7 +475,7 @@ namespace LightProgram
                                 SendDisplay(cmd.value);
                             }
                             break;
-                        case CommandType.CommandRunProgram:
+                        case CommandType.CommandRunEEPROMProgram:
                             {
                                 byte[] bytesOut = new byte[2];
                                 bytesOut[0] = (byte)'L'; // load from EEPROM
@@ -484,6 +486,23 @@ namespace LightProgram
                                 Reply r = new Reply();
                                 r.t = ReplyType.ReplyMsg;
                                 r.errorCode = "Running program " + cmd.value;
+                                SendReply(r);
+                            }
+                            break;
+                        case CommandType.CommandRunTemporaryProgram:
+                            {
+                                byte[] bytesOut = new byte[Comms.program_size + 1];
+                                bytesOut[0] = (byte)'m'; // receive program from PC
+                                for (int i = 0; i < Comms.program_size; i++)
+                                {
+                                    bytesOut[i + 1] = cmd.program_bytes[i];
+                                }
+                                SendSerialCommand(bytesOut, Comms.program_size + 1);
+                                bytesOut[0] = (byte)'R'; // run
+                                SendSerialCommand(bytesOut, 1);
+                                Reply r = new Reply();
+                                r.t = ReplyType.ReplyMsg;
+                                r.errorCode = "Running program from editor";
                                 SendReply(r);
                             }
                             break;
@@ -510,8 +529,7 @@ namespace LightProgram
     public enum InstructionType
     {
         InstructionRestart, InstructionSetDisplay,
-        InstructionBlackout, InstructionSetColour,
-        InstructionTransition, InstructionSlowTransition,
+        InstructionTransition,
         InstructionIllegal
     };
     public class Instruction
@@ -521,6 +539,7 @@ namespace LightProgram
         public int g = 0;
         public int b = 0;
         public int value = 0;
+        public int start_time = 0;
         public static int max_inst_length = 8;
 
         public Instruction(InstructionType t = InstructionType.InstructionIllegal)
@@ -536,38 +555,52 @@ namespace LightProgram
                 case InstructionType.InstructionRestart:
                     b[0] = (byte)'R';
                     return 1;
-                case InstructionType.InstructionBlackout:
-                    b[0] = (byte)'B';
-                    return 1;
                 // 2 byte
                 case InstructionType.InstructionSetDisplay:
                     b[0] = (byte)'D';
                     b[1] = (byte)(this.value & 0x1f);
                     return 2;
-                // 4 byte
-                case InstructionType.InstructionSetColour:
-                    b[0] = (byte)'C';
-                    b[1] = (byte)(this.r & 0xff);
-                    b[2] = (byte)(this.g & 0xff);
-                    b[3] = (byte)(this.b & 0xff);
-                    return 4;
-                // 5 byte
+                // 1-6 byte
                 case InstructionType.InstructionTransition:
-                    b[0] = (byte)'T';
-                    b[1] = (byte)(this.r & 0xff);
-                    b[2] = (byte)(this.g & 0xff);
-                    b[3] = (byte)(this.b & 0xff);
-                    b[4] = (byte)(this.value & 0xff);
-                    return 5;
-                // 6 byte
-                case InstructionType.InstructionSlowTransition:
-                    b[0] = (byte)'t';
-                    b[1] = (byte)(this.r & 0xff);
-                    b[2] = (byte)(this.g & 0xff);
-                    b[3] = (byte)(this.b & 0xff);
-                    b[4] = (byte)((this.value & 0xff00) >> 8);
-                    b[5] = (byte)(this.value & 0xff);
-                    return 6;
+                    if (this.value <= 0)
+                    {
+                        if (this.r == 0 && this.g == 0 && this.b == 0)
+                        {
+                            // encode as blackout ('B')
+                            b[0] = (byte)'B';
+                            return 1;
+                        }
+                        else
+                        {
+                            // encode as setcolour 'C'
+                            b[0] = (byte)'C';
+                            b[1] = (byte)(this.r & 0xff);
+                            b[2] = (byte)(this.g & 0xff);
+                            b[3] = (byte)(this.b & 0xff);
+                            return 4;
+                        }
+                    }
+                    else if (this.value <= 255)
+                    {
+                        // encode as fast transition 'T'
+                        b[0] = (byte)'T';
+                        b[1] = (byte)(this.r & 0xff);
+                        b[2] = (byte)(this.g & 0xff);
+                        b[3] = (byte)(this.b & 0xff);
+                        b[4] = (byte)(this.value & 0xff);
+                        return 5;
+                    }
+                    else
+                    {
+                        // encode as slow transition 't'
+                        b[0] = (byte)'t';
+                        b[1] = (byte)(this.r & 0xff);
+                        b[2] = (byte)(this.g & 0xff);
+                        b[3] = (byte)(this.b & 0xff);
+                        b[4] = (byte)((this.value & 0xff00) >> 8);
+                        b[5] = (byte)(this.value & 0xff);
+                        return 6;
+                    }
                 case InstructionType.InstructionIllegal:
                     return 0;
                 default:
@@ -585,7 +618,9 @@ namespace LightProgram
                     this.t = InstructionType.InstructionRestart;
                     return;
                 case 'B':
-                    this.t = InstructionType.InstructionBlackout;
+                    this.t = InstructionType.InstructionTransition;
+                    this.r = this.g = this.b = 0;
+                    this.value = 0;
                     return;
                 case 'D':
                     if (b.Length < 2) return;
@@ -594,10 +629,11 @@ namespace LightProgram
                     return;
                 case 'C':
                     if (b.Length < 4) return;
-                    this.t = InstructionType.InstructionSetColour;
+                    this.t = InstructionType.InstructionTransition;
                     this.r = (int)b[1];
                     this.g = (int)b[2];
                     this.b = (int)b[3];
+                    this.value = 0;
                     return;
                 case 'T':
                     if (b.Length < 5) return;
@@ -609,7 +645,7 @@ namespace LightProgram
                     return;
                 case 't':
                     if (b.Length < 6) return;
-                    this.t = InstructionType.InstructionSlowTransition;
+                    this.t = InstructionType.InstructionTransition;
                     this.r = (int)b[1];
                     this.g = (int)b[2];
                     this.b = (int)b[3];
@@ -631,7 +667,7 @@ namespace LightProgram
 
         public string getColour()
         {
-            return String.Format("{0:X02} {0:X02} {0:X02}", this.r, this.g, this.b);
+            return String.Format("{0:X02} {1:X02} {2:X02}", this.r, this.g, this.b);
         }
 
         public override string ToString()
@@ -641,8 +677,6 @@ namespace LightProgram
                 // 1 byte
                 case InstructionType.InstructionRestart:
                     return "Restart";
-                case InstructionType.InstructionBlackout:
-                    return "Blackout";
                 // 2 byte
                 case InstructionType.InstructionSetDisplay:
                     if (this.value >= 0x10)
@@ -653,17 +687,33 @@ namespace LightProgram
                     {
                         return "Set Display to " + String.Format("{0:X01}", this.value);
                     }
-                // 4 byte
-                case InstructionType.InstructionSetColour:
-                    return "Set Colour to " + getColour();
-                // 5 byte
+                // 1-6 byte
                 case InstructionType.InstructionTransition:
-                case InstructionType.InstructionSlowTransition:
                     return "Transition to " + getColour() + " in " + this.value + " milliseconds";
                 case InstructionType.InstructionIllegal:
                     return "Illegal";
                 default:
                     return "Unknown";
+            }
+        }
+
+        public int getTime()
+        {
+            switch (this.t)
+            {
+                // 1 byte
+                case InstructionType.InstructionRestart:
+                    return 0;
+                // 2 byte
+                case InstructionType.InstructionSetDisplay:
+                    return 0;
+                // 1-6 byte
+                case InstructionType.InstructionTransition:
+                    return this.value;
+                case InstructionType.InstructionIllegal:
+                    return 0;
+                default:
+                    return 0;
             }
         }
     }
@@ -673,6 +723,7 @@ namespace LightProgram
         public List<Instruction> contents = null;
         public static int program_too_big = -1;
         public static int max_program_size = SerialComms.program_size - SerialComms.program_name_size;
+        public int end_time = 0;
 
         public InstructionList(byte[] program_bytes = null)
         {
@@ -681,6 +732,17 @@ namespace LightProgram
             {
                 decode(program_bytes);
             }
+        }
+
+        public void updateTimings()
+        {
+            int time = 0;
+            foreach (Instruction inst in this.contents)
+            {
+                inst.start_time = time;
+                time += inst.getTime();
+            }
+            this.end_time = time;
         }
 
         public void decode(byte[] program_bytes)
@@ -705,31 +767,27 @@ namespace LightProgram
                 inst.decode(slice);
 
                 // detect illegal instruction
-                if (inst.t != InstructionType.InstructionIllegal)
+                if (inst.t == InstructionType.InstructionIllegal) break;
+
+                int sz = inst.getSize();
+                a += sz;
+                inst.encode(check);
+                for (i = 0; i < sz; i++)
                 {
-                    int sz = inst.getSize();
-                    a += sz;
-                    inst.encode(check);
-                    for (i = 0; i < sz; i++)
+                    if (check[i] != slice[i])
                     {
-                        if (check[i] != slice[i])
-                        {
-                            // decoder/encoder error
-                            throw new Exception("decoded instruction does not match original (1)");
-                        }
+                        // decoder/encoder error
+                        throw new Exception("decoded instruction does not match original (1)");
                     }
-                }
-                else
-                {
-                    a++;
                 }
 
                 // detect end of program (don't add to list)
-                if (inst.t == InstructionType.InstructionRestart) return;
+                if (inst.t == InstructionType.InstructionRestart) break;
 
                 // all other instructions go into the list
                 this.contents.Add(inst);
             }
+            updateTimings();
         }
 
         public int encode(byte[] program_bytes)

@@ -61,15 +61,18 @@ namespace LightProgram
                     }
                 }
                 return "Program " + program_number + ": '" + last_eight +
-                    "' (" + this.inst_list.contents.Count + " instructions, " + this.num_bytes + " bytes)";
+                    "' (" + this.inst_list.end_time + " milliseconds, " +
+                    this.inst_list.contents.Count + " instructions, " + this.num_bytes + " bytes)";
             }
         };
 
         private Dictionary<int, ProgramListItem> programs = null;
+        private ConnectionSetup previous = null;
 
-        public LightChooser(Comms comms)
+        public LightChooser(Comms comms, ConnectionSetup previous)
         {
             this.comms = comms;
+            this.previous = previous;
             this.programs = new Dictionary<int, ProgramListItem> ();
             this.programEditor = new ProgramEditor(this.comms, this);
             InitializeComponent();
@@ -117,12 +120,12 @@ namespace LightProgram
 
         private void closeClicked(object sender, FormClosedEventArgs e)
         {
-            Application.Exit();
+            this.previous.Disconnect();
         }
 
         private void disconnectClicked(object sender, EventArgs e)
         {
-            Application.Exit();
+            this.Close();
         }
 
         private void runProgram(object sender, EventArgs e)

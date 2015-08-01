@@ -41,7 +41,10 @@ namespace LightProgram
 
         private void TimerTick(object sender, EventArgs e)
         {
-            RefreshPorts();
+            if (this.lightChooser == null)
+            {
+                RefreshPorts();
+            }
             if (this.simulator != null)
             {
                 this.simulator.RefreshSimulation();

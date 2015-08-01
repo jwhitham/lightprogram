@@ -93,6 +93,65 @@ namespace LightProgram
         }
     }
 
+    // Communication from programming GUI to simulator GUI
+    public class SimulatorComms : Comms
+    {
+        private LinkedList<Command> commands;
+        private LinkedList<Reply> replies;
+
+        public SimulatorComms()
+        {
+            this.commands = new LinkedList<Command>();
+            this.replies = new LinkedList<Reply>();
+        }
+
+        public override Reply GetReply()
+        {
+            Reply r;
+            if (this.replies.Count != 0)
+            {
+                r = this.replies.First();
+                this.replies.RemoveFirst();
+            }
+            else
+            {
+                r = new Reply();
+                r.t = ReplyType.ReplyNone;
+            }
+            return r;
+        }
+
+        public override void Disconnect()
+        {
+        }
+
+        public override void SendCommand(Command c)
+        {
+            this.commands.AddLast(c);
+        }
+
+        public Command SimulatorGetCommand()
+        {
+            Command c;
+            if (this.commands.Count != 0)
+            {
+                c = this.commands.First();
+                this.commands.RemoveFirst();
+            }
+            else
+            {
+                c = new Command();
+                c.t = CommandType.CommandNone;
+            }
+            return c;
+        }
+
+        public void SimulatorSendReply(Reply r)
+        {
+            this.replies.AddLast(r);
+        }
+    }
+
     // Communication via serial
     public class SerialComms : Comms
     {

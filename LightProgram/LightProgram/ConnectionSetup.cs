@@ -12,10 +12,11 @@ namespace LightProgram
 {
     public partial class ConnectionSetup : Form
     {
-        private SerialComms serialComms = null;
+        private Comms comms = null;
         private System.Windows.Forms.Timer timer = null;
         private List<string> ports = null;
         private LightChooser lightChooser = null;
+        private Simulator simulator = null;
         public static string simulation = "Simulation";
 
         public ConnectionSetup()
@@ -41,6 +42,10 @@ namespace LightProgram
         private void TimerTick(object sender, EventArgs e)
         {
             RefreshPorts();
+            if (this.simulator != null)
+            {
+                this.simulator.RefreshSimulation();
+            }
         }
 
         private void RefreshPorts()
@@ -98,9 +103,9 @@ namespace LightProgram
                 this.serialPortList.SelectedIndex = 0;
             }
             // update the text window
-            while (this.serialComms != null)
+            while (this.comms != null)
             {
-                Reply r = this.serialComms.GetReply();
+                Reply r = this.comms.GetReply();
                 switch (r.t)
                 {
                     case ReplyType.ReplyNone:
@@ -110,7 +115,7 @@ namespace LightProgram
                         this.AppendText("Connected");
                         if (this.lightChooser == null)
                         {
-                            this.lightChooser = new LightChooser(this.serialComms);
+                            this.lightChooser = new LightChooser(this.comms);
                         }
                         this.lightChooser.SetColour(r.red, r.green, r.blue);
                         this.lightChooser.Show();
@@ -152,10 +157,7 @@ namespace LightProgram
 
         private void ConnectClick(object sender, EventArgs e)
         {
-            if ((this.lightChooser != null) || (this.serialComms != null))
-            {
-                Disconnect();
-            }
+            Disconnect();
             int index = this.serialPortList.SelectedIndex;
             if ((index < 0) || (index >= this.ports.Count))
             {
@@ -166,8 +168,18 @@ namespace LightProgram
             this.AppendText("Connecting to " + port + "...");
             this.connectButton.Enabled = false;
 
-            this.serialComms = new SerialComms();
-            this.serialComms.Connect(port);
+            if (port == simulation)
+            {
+                SimulatorComms sc = new SimulatorComms();
+                this.comms = (Comms) sc;
+                this.simulator = new Simulator(sc);
+            }
+            else
+            {
+                this.comms = new SerialComms();
+            }
+            this.comms.Connect(port);
+
         }
 
         public void Disconnect(object sender = null, FormClosedEventArgs e = null)
@@ -177,10 +189,16 @@ namespace LightProgram
                 this.lightChooser.Close();
                 this.lightChooser = null;
             }
-            if (this.serialComms != null)
+
+            if (this.simulator != null)
             {
-                this.serialComms.Disconnect();
-                this.serialComms = null;
+                this.simulator.Close();
+                this.simulator = null;
+            }
+            if (this.comms != null)
+            {
+                this.comms.Disconnect();
+                this.comms = null;
             }
         }
 
@@ -200,11 +218,6 @@ namespace LightProgram
         }
 
         private void groupBox1_Enter(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Disconnect()
         {
 
         }

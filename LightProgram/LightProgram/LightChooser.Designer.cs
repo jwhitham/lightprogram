@@ -62,6 +62,7 @@
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Manual Control";
+            this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
             // 
             // flowLayoutPanel1
             // 
@@ -116,6 +117,7 @@
             this.redLabel.TabIndex = 5;
             this.redLabel.Text = "FF";
             this.redLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.redLabel.Click += new System.EventHandler(this.redLabel_Click);
             // 
             // panel4
             // 

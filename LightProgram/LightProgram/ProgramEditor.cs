@@ -13,7 +13,7 @@ namespace LightProgram
 
     public partial class ProgramEditor : Form
     {
-        private SerialComms serialComms = null;
+        private Comms comms = null;
         private LightChooser lightChooser = null;
 
         public class InstructionEditor
@@ -33,9 +33,9 @@ namespace LightProgram
             }
         };
 
-        public ProgramEditor(SerialComms serialComms, LightChooser lightChooser)
+        public ProgramEditor(Comms comms, LightChooser lightChooser)
         {
-            this.serialComms = serialComms;
+            this.comms = comms;
             InitializeComponent();
         }
 

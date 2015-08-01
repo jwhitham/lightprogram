@@ -13,7 +13,7 @@ namespace LightProgram
     
     public partial class LightChooser : Form
     {
-        private SerialComms serialComms = null;
+        private Comms comms = null;
         private ProgramEditor programEditor = null;
 
         public class ProgramListItem
@@ -34,7 +34,7 @@ namespace LightProgram
             {
                 this.program_bytes = program_bytes;
                 this.inst_list = new InstructionList(program_bytes);
-                byte[] check = new byte[SerialComms.program_size];
+                byte[] check = new byte[Comms.program_size];
                 this.num_bytes = this.inst_list.encode (check);
             }
 
@@ -47,7 +47,7 @@ namespace LightProgram
                     return "Program " + program_number + " is empty";
                 }
                 string last_eight = "";
-                int j = program_bytes.Length - SerialComms.program_name_size;
+                int j = program_bytes.Length - Comms.program_name_size;
                 if (j > 1)
                 {
                     for (int i = j; i < program_bytes.Length; i++)
@@ -67,18 +67,18 @@ namespace LightProgram
 
         private Dictionary<int, ProgramListItem> programs = null;
 
-        public LightChooser(SerialComms serialComms)
+        public LightChooser(Comms comms)
         {
-            this.serialComms = serialComms;
+            this.comms = comms;
             this.programs = new Dictionary<int, ProgramListItem> ();
-            this.programEditor = new ProgramEditor(serialComms, this);
+            this.programEditor = new ProgramEditor(this.comms, this);
             InitializeComponent();
             this.programList.FormattingEnabled = false;
         }
 
         private void barChanged()
         {
-            this.serialComms.SetColour(this.redBar.Value, this.greenBar.Value, this.blueBar.Value);
+            this.comms.SetColour(this.redBar.Value, this.greenBar.Value, this.blueBar.Value);
             this.redLabel.Text = String.Format("{0:X02}", this.redBar.Value);
             this.greenLabel.Text = String.Format("{0:X02}", this.greenBar.Value);
             this.blueLabel.Text = String.Format("{0:X02}", this.blueBar.Value);
@@ -132,7 +132,7 @@ namespace LightProgram
             {
                 return;
             }
-            this.serialComms.RunProgram(p.program_number);
+            this.comms.RunProgram(p.program_number);
         }
 
         private void editProgram(object sender, EventArgs e)
@@ -170,5 +170,14 @@ namespace LightProgram
 
         }
 
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void redLabel_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

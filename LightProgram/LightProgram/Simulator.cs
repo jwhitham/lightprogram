@@ -217,6 +217,18 @@ namespace LightProgram
                         this.simulated_program = new InstructionList(c.program_bytes);
                         startProgram("(temporary)");
                         break;
+                    case CommandType.CommandSaveEEPROMProgram:
+                        writeProgram(c.program_number, c.program_bytes);
+                        r = new Reply();
+                        r.t = ReplyType.ReplyProgram;
+                        r.program_number = c.program_number;
+                        r.program_bytes = readProgram(c.program_number);
+                        this.simulatorComms.SimulatorSendReply(r);
+                        r = new Reply();
+                        r.errorCode = "Written to simulated EEPROM";
+                        r.t = ReplyType.ReplyMsg;
+                        this.simulatorComms.SimulatorSendReply(r);
+                        break;
                 }
             }
         }

@@ -86,13 +86,15 @@ namespace LightProgram
                 // updating a program
                 p = this.programs[program_number];
                 p.updateProgram (program_bytes);
-                this.programList.Refresh();
+                this.programList.Items.RemoveAt(program_number);
+                this.programList.Items.Insert(program_number, p);
             }
             else
             {
                 // adding a new program
                 p = new ProgramListItem(program_number, program_bytes);
                 this.programList.Items.Add(p);
+                this.programs.Add(program_number, p);
             }
         }
 
@@ -127,7 +129,7 @@ namespace LightProgram
             {
                 return;
             }
-            this.programEditor.SetProgram(p.inst_list);
+            this.programEditor.SetProgram(p.inst_list, p.program_number);
             this.programEditor.Show();
         }
 

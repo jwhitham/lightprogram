@@ -15,18 +15,17 @@ namespace LightProgram
     {
         private Comms comms = null;
         private LightChooser lightChooser = null;
+        private int program_number = -1;
 
-        public class InstructionEditor
+        public class InstructionEditor : ListViewItem
         {
             public Instruction inst = null;
  
-            public InstructionEditor(Instruction inst)
+            public InstructionEditor(Instruction inst) : base(inst.ToString())
             {
                 this.inst = inst;
             }
             
-            public string Text { get; set; }
-
             public override string ToString()
             {
                 return inst.ToString();
@@ -40,7 +39,7 @@ namespace LightProgram
             InitializeComponent();
         }
 
-        public void SetProgram(InstructionList inst_list)
+        public void SetProgram(InstructionList inst_list, int program_number)
         {
             // make a copy of the program
             byte[] tmp = new byte[Comms.program_size];
@@ -54,8 +53,11 @@ namespace LightProgram
                 this.instructions.Items.Add(new InstructionEditor (inst));
             }
             this.instructions.Refresh();
+            this.program_number = program_number;
             this.namebox.Text = copy_inst_list.name;
             this.properties.Text = copy_inst_list.getProperties();
+            this.Text = "Edit Program " + program_number;
+            buttonsUpdate();
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -109,19 +111,20 @@ namespace LightProgram
                 err = "This program has no running time. It must contain some delays.";
             }
 
-            SetProgram(copy_inst_list);
             switch (mode)
             {
                 case ModeType.RunMode:
                     // Start running the program
                     if (err != "")
                     {
-                        MessageBox.Show(err);
+                        MessageBox.Show(err, "Run Program");
                     }
                     else
                     {
                         c.t = CommandType.CommandRunTemporaryProgram;
                         this.comms.SendCommand(c);
+                        SetProgram(copy_inst_list, this.program_number);
+                        buttonsUpdate();
                     }
                     break;
                 case ModeType.CheckMode:
@@ -133,6 +136,23 @@ namespace LightProgram
                     break;
                 case ModeType.SaveMode:
                     // Are you sure you want to save?
+                    if (err != "")
+                    {
+                        MessageBox.Show(err, "Save Program");
+                    }
+                    else
+                    {
+                        DialogResult dialogResult = MessageBox.Show("Really store program " + this.program_number + " in memory?", "Save Program", MessageBoxButtons.YesNo);
+                        if (dialogResult == DialogResult.Yes)
+                        {
+                            c.t = CommandType.CommandSaveEEPROMProgram;
+                            c.program_number = this.program_number;
+                            this.comms.SendCommand(c);
+                            this.Hide();
+                            SetProgram(copy_inst_list, this.program_number);
+                            buttonsUpdate();
+                        }
+                    }
                     break;
             }
         }
@@ -142,7 +162,7 @@ namespace LightProgram
             checkProgramThenDoSomething(ModeType.RunMode);
         }
 
-        private void updateClicked(object sender, EventArgs e)
+        private void revalidate()
         {
             checkProgramThenDoSomething(ModeType.CheckMode);
         }
@@ -155,7 +175,116 @@ namespace LightProgram
         private void saveClicked(object sender, EventArgs e)
         {
             checkProgramThenDoSomething(ModeType.SaveMode);
+        }
 
+        private void groupBox4_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void addTransitionClicked(object sender, EventArgs e)
+        {
+            revalidate();
+        }
+
+        private void addDisplayButton(object sender, EventArgs e)
+        {
+            revalidate();
+        }
+
+        private void moveUpButton(object sender, EventArgs e)
+        {
+            if (this.instructions.SelectedItems.Count != 0)
+            {
+                int i = this.instructions.SelectedIndex;
+                InstructionEditor inst = (InstructionEditor)this.instructions.Items[i];
+                this.instructions.Items.RemoveAt(i);
+                i--;
+                if (i < 0) i = 0;
+                this.instructions.Items.Insert(i, inst);
+                this.instructions.SetSelected(i, true);
+            }
+            revalidate();
+        }
+
+        private void moveDownButton(object sender, EventArgs e)
+        {
+            if (this.instructions.SelectedItems.Count != 0)
+            {
+                int i = this.instructions.SelectedIndex;
+                InstructionEditor inst = (InstructionEditor)this.instructions.Items[i];
+                this.instructions.Items.RemoveAt(i);
+                i++;
+                int j = this.instructions.Items.Count;
+                if (i >= j)
+                {
+                    this.instructions.Items.Add(inst);
+                    this.instructions.SetSelected(j, true);
+                }
+                else
+                {
+                    this.instructions.Items.Insert(i, inst);
+                    this.instructions.SetSelected(i, true);
+                }
+            }
+            revalidate();
+        }
+
+        private void deleteButton(object sender, EventArgs e)
+        {
+            if (this.instructions.SelectedItems.Count != 0)
+            {
+                this.instructions.Items.RemoveAt(this.instructions.SelectedIndex);
+            }
+            revalidate();
+        }
+
+        private void buttonsUpdate()
+        {
+            bool selection = (this.instructions.SelectedItems.Count != 0);
+            this.move_up.Enabled = selection;
+            this.move_down.Enabled = selection;
+            this.delete.Enabled = selection;
+        }
+
+        private void instructionsMouseDown(object sender, MouseEventArgs e)
+        {
+            int index = this.instructions.IndexFromPoint(new Point(e.X, e.Y));
+            if ((index >= 0) && (index < this.instructions.Items.Count))
+            {
+                this.instructions.SetSelected(index, true);
+                this.instructions.DoDragDrop(this.instructions.Items[index], DragDropEffects.Move);
+            }
+        }
+
+        private void instructionsDragOver(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Move;
+        }
+
+        private void instructionsDragDrop(object sender, DragEventArgs e)
+        {
+            Point point = this.instructions.PointToClient(new Point(e.X, e.Y));
+            int index = this.instructions.IndexFromPoint(point);
+            if ((index < 0) || (index >= this.instructions.Items.Count))
+            {
+                index = this.instructions.Items.Count - 1;
+            }
+            object data = e.Data.GetData(typeof(InstructionEditor));
+            if (data != null)
+            {
+                this.instructions.Items.Remove(data);
+                this.instructions.Items.Insert(index, data);
+                this.instructions.ClearSelected();
+                revalidate();
+                buttonsUpdate();
+            }
+        }
+
+        private void instructions_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            revalidate();
+            buttonsUpdate();
         }
     }
 }

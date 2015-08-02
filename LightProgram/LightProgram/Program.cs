@@ -13,7 +13,7 @@ namespace LightProgram
     public enum CommandType
     {
         CommandNone, CommandConnect, CommandSetColour, CommandSetDisplay, CommandExit,
-        CommandRunEEPROMProgram, CommandRunTemporaryProgram
+        CommandRunEEPROMProgram, CommandRunTemporaryProgram, CommandSaveEEPROMProgram
     }
     public struct Command
     {
@@ -507,6 +507,46 @@ namespace LightProgram
                                 SendReply(r);
                             }
                             break;
+                        case CommandType.CommandSaveEEPROMProgram:
+                            {
+                                Reply r = new Reply();
+                                r.t = ReplyType.ReplyMsg;
+                                r.errorCode = "Writing program " + cmd.program_number + " to EEPROM";
+                                SendReply(r);
+
+                                byte[] bytesOut = new byte[Comms.program_size + 1];
+                                bytesOut[0] = (byte)'M'; // upload program via serial line (PC to Arduino)
+                                for (int i = 0; i < Comms.program_size; i++)
+                                {
+                                    bytesOut[i + 1] = cmd.program_bytes[i];
+                                }
+                                SendSerialCommand(bytesOut, Comms.program_size + 1);
+                                bytesOut[0] = (byte)'S'; // save to EEPROM
+                                bytesOut[1] = (byte)cmd.program_number;
+                                SendSerialCommand(bytesOut, 2);
+                                bytesOut[0] = (byte)'L'; // load program from EEPROM (readback)
+                                bytesOut[1] = (byte)cmd.program_number;
+                                SendSerialCommand(bytesOut, 2);
+                                bytesOut[0] = (byte)'m'; // download program via serial line (readback)
+                                SendSerialCommand(bytesOut, 1);
+                                if (this.serialHandle != null)
+                                {
+                                    r = new Reply();
+                                    r.program_bytes = new byte[Comms.program_size];
+                                    r.program_number = cmd.program_number;
+                                    ReadSerialBytes(r.program_bytes, Comms.program_size);
+                                    r.t = ReplyType.ReplyProgram;
+                                    SendReply(r);
+                                }
+                                if (this.serialHandle != null)
+                                {
+                                    r = new Reply();
+                                    r.t = ReplyType.ReplyMsg;
+                                    r.errorCode = "Done";
+                                    SendReply(r);
+                                }
+                            }
+                            break;
                         default:
                             break;
                     }
@@ -796,14 +836,22 @@ namespace LightProgram
 
             // decode program name (if present)
             this.name = "";
+            bool valid_name = false;
             for (int i = Comms.program_size - Comms.program_name_size; (i < program_bytes.Length) && (i < Comms.program_size); i++)
             {
                 int ch = (int)program_bytes[i];
                 if ((ch < 32) || (ch > 126))
                 {
                     ch = (int)'?';
+                } else if (ch > 32)
+                {
+                    valid_name = true;
                 }
                 this.name += (char)((byte)ch);
+            }
+            if (!valid_name)
+            {
+                this.name = "";
             }
             updateProperties();
         }

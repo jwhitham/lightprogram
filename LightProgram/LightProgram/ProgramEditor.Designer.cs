@@ -71,6 +71,7 @@
             this.instructions.SelectedIndexChanged += new System.EventHandler(this.instructions_SelectedIndexChanged);
             this.instructions.DragDrop += new System.Windows.Forms.DragEventHandler(this.instructionsDragDrop);
             this.instructions.DragOver += new System.Windows.Forms.DragEventHandler(this.instructionsDragOver);
+            this.instructions.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.instructions_MouseDoubleClick);
             this.instructions.MouseDown += new System.Windows.Forms.MouseEventHandler(this.instructionsMouseDown);
             // 
             // button1

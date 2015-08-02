@@ -279,10 +279,19 @@ namespace LightProgram
                 if (inst_ed.inst == inst)
                 {
                     this.instructions.Items.RemoveAt(i);
-                    this.instructions.Items.Insert(i, inst_ed);
-                    if (i < j)
+                    if ((i + 1) == j)
                     {
-                        this.instructions.SetSelected(i + 1, true);
+                        // Last member of list
+                        this.instructions.Items.Add(inst_ed);
+                        this.instructions.SetSelected(0, false);
+                    }
+                    else
+                    {
+                        this.instructions.Items.Insert(i, inst_ed);
+                        if (i < j)
+                        {
+                            this.instructions.SetSelected(i + 1, true);
+                        }
                     }
                     revalidate();
                     return;
@@ -299,6 +308,10 @@ namespace LightProgram
                 this.transition.Show();
             }
             revalidate();
+        }
+
+        private void instructions_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
         }
 
         private void instructionsMouseDown(object sender, MouseEventArgs e)
@@ -327,9 +340,20 @@ namespace LightProgram
             object data = e.Data.GetData(typeof(InstructionEditor));
             if (data != null)
             {
-                this.instructions.Items.Remove(data);
-                this.instructions.Items.Insert(index, data);
-                this.instructions.ClearSelected();
+                int i = this.instructions.Items.IndexOf(data);
+                if (i == index)
+                {
+                    this.instructions.SetSelected(index, true);
+                    InstructionEditor inst_ed = (InstructionEditor)this.instructions.Items[index];
+                    this.transition.SetInstruction(inst_ed.inst);
+                    this.transition.Show();
+                }
+                else
+                {
+                    this.instructions.Items.RemoveAt(index);
+                    this.instructions.Items.Insert(index, data);
+                    this.instructions.ClearSelected();
+                }
                 revalidate();
                 buttonsUpdate();
             }
@@ -346,5 +370,6 @@ namespace LightProgram
             this.Hide();
             e.Cancel = true;
         }
+
     }
 }

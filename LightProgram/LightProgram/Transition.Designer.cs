@@ -44,7 +44,8 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.timeBar = new System.Windows.Forms.TrackBar();
             this.timeLabel = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.units = new System.Windows.Forms.ComboBox();
+            this.ok = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -211,6 +212,7 @@
             this.flowLayoutPanel2.Controls.Add(this.panel1);
             this.flowLayoutPanel2.Controls.Add(this.timeBar);
             this.flowLayoutPanel2.Controls.Add(this.timeLabel);
+            this.flowLayoutPanel2.Controls.Add(this.units);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(15, 20);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
@@ -233,12 +235,11 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.timeBar.BackColor = System.Drawing.SystemColors.Control;
-            this.timeBar.LargeChange = 1000;
+            this.timeBar.LargeChange = 10;
             this.timeBar.Location = new System.Drawing.Point(14, 3);
-            this.timeBar.Maximum = 65535;
+            this.timeBar.Maximum = 99;
             this.timeBar.Name = "timeBar";
-            this.timeBar.Size = new System.Drawing.Size(277, 35);
-            this.timeBar.SmallChange = 100;
+            this.timeBar.Size = new System.Drawing.Size(237, 35);
             this.timeBar.TabIndex = 0;
             this.timeBar.Scroll += new System.EventHandler(this.timeChanged);
             // 
@@ -248,21 +249,32 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.timeLabel.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.timeLabel.Location = new System.Drawing.Point(297, 0);
+            this.timeLabel.Location = new System.Drawing.Point(257, 0);
             this.timeLabel.Name = "timeLabel";
-            this.timeLabel.Size = new System.Drawing.Size(77, 41);
+            this.timeLabel.Size = new System.Drawing.Size(34, 41);
             this.timeLabel.TabIndex = 5;
-            this.timeLabel.Text = "65535ms";
+            this.timeLabel.Text = "99";
             this.timeLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.timeLabel.Click += new System.EventHandler(this.timeLabel_Click);
             // 
-            // button1
+            // units
             // 
-            this.button1.Location = new System.Drawing.Point(264, 246);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 6;
-            this.button1.Text = "Ok";
-            this.button1.UseVisualStyleBackColor = true;
+            this.units.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.units.FormattingEnabled = true;
+            this.units.Location = new System.Drawing.Point(297, 10);
+            this.units.Name = "units";
+            this.units.Size = new System.Drawing.Size(81, 21);
+            this.units.TabIndex = 6;
+            // 
+            // ok
+            // 
+            this.ok.Location = new System.Drawing.Point(264, 246);
+            this.ok.Name = "ok";
+            this.ok.Size = new System.Drawing.Size(75, 23);
+            this.ok.TabIndex = 6;
+            this.ok.Text = "Ok";
+            this.ok.UseVisualStyleBackColor = true;
+            this.ok.Click += new System.EventHandler(this.okButton);
             // 
             // button2
             // 
@@ -280,7 +292,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(431, 280);
             this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.ok);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.MaximumSize = new System.Drawing.Size(447, 316);
@@ -320,7 +332,8 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TrackBar timeBar;
         private System.Windows.Forms.Label timeLabel;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button ok;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.ComboBox units;
     }
 }

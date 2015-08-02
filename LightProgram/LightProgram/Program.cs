@@ -658,6 +658,10 @@ namespace LightProgram
                     else
                     {
                         // encode as slow transition 't'
+                        if (this.value >= 0x10000)
+                        {
+                            this.value = 0xffff;
+                        }
                         b[0] = (byte)'t';
                         b[1] = (byte)(this.r & 0xff);
                         b[2] = (byte)(this.g & 0xff);

@@ -16,6 +16,7 @@ namespace LightProgram
         private Comms comms = null;
         private LightChooser lightChooser = null;
         private int program_number = -1;
+        private Transition transition = null;
 
         public class InstructionEditor : ListViewItem
         {
@@ -37,10 +38,16 @@ namespace LightProgram
             this.comms = comms;
             this.lightChooser = lightChooser;
             InitializeComponent();
+            this.transition = new Transition();
         }
 
         public void SetProgram(InstructionList inst_list, int program_number)
         {
+            if (this.transition != null)
+            {
+                this.transition.Close();
+                this.transition = null;
+            }
             // make a copy of the program
             byte[] tmp = new byte[Comms.program_size];
             inst_list.encode(tmp);
@@ -242,9 +249,15 @@ namespace LightProgram
         private void buttonsUpdate()
         {
             bool selection = (this.instructions.SelectedItems.Count != 0);
-            this.move_up.Enabled = selection;
-            this.move_down.Enabled = selection;
+            this.move_up.Enabled = selection && (this.instructions.SelectedIndex > 0);
+            this.move_down.Enabled = selection && (this.instructions.SelectedIndex < (this.instructions.Items.Count - 1));
+            this.edit.Enabled = selection;
             this.delete.Enabled = selection;
+        }
+
+        private void editClicked(object sender, EventArgs e)
+        {
+            revalidate();
         }
 
         private void instructionsMouseDown(object sender, MouseEventArgs e)
@@ -286,5 +299,6 @@ namespace LightProgram
             revalidate();
             buttonsUpdate();
         }
+
     }
 }

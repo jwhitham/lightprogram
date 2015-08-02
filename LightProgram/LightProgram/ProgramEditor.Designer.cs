@@ -43,6 +43,7 @@
             this.add_display = new System.Windows.Forms.Button();
             this.add_transition = new System.Windows.Forms.Button();
             this.instructions = new System.Windows.Forms.ListBox();
+            this.edit = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -127,6 +128,7 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.edit);
             this.groupBox4.Controls.Add(this.delete);
             this.groupBox4.Controls.Add(this.move_down);
             this.groupBox4.Controls.Add(this.move_up);
@@ -134,7 +136,7 @@
             this.groupBox4.Controls.Add(this.add_transition);
             this.groupBox4.Location = new System.Drawing.Point(317, 12);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(122, 173);
+            this.groupBox4.Size = new System.Drawing.Size(122, 202);
             this.groupBox4.TabIndex = 7;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Edit Controls";
@@ -142,7 +144,7 @@
             // 
             // delete
             // 
-            this.delete.Location = new System.Drawing.Point(7, 139);
+            this.delete.Location = new System.Drawing.Point(7, 168);
             this.delete.Name = "delete";
             this.delete.Size = new System.Drawing.Size(106, 23);
             this.delete.TabIndex = 4;
@@ -203,6 +205,16 @@
             this.instructions.DragOver += new System.Windows.Forms.DragEventHandler(this.instructionsDragOver);
             this.instructions.MouseDown += new System.Windows.Forms.MouseEventHandler(this.instructionsMouseDown);
             // 
+            // edit
+            // 
+            this.edit.Location = new System.Drawing.Point(7, 139);
+            this.edit.Name = "edit";
+            this.edit.Size = new System.Drawing.Size(106, 23);
+            this.edit.TabIndex = 5;
+            this.edit.Text = "Edit";
+            this.edit.UseVisualStyleBackColor = true;
+            this.edit.Click += new System.EventHandler(this.editClicked);
+            // 
             // ProgramEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -246,5 +258,6 @@
         private System.Windows.Forms.Button add_display;
         private System.Windows.Forms.Button add_transition;
         private System.Windows.Forms.ListBox instructions;
+        private System.Windows.Forms.Button edit;
     }
 }

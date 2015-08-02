@@ -52,6 +52,12 @@
     <Compile Include="ConnectionSetup.Designer.cs">
       <DependentUpon>ConnectionSetup.cs</DependentUpon>
     </Compile>
+    <Compile Include="Transition.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Transition.Designer.cs">
+      <DependentUpon>Transition.cs</DependentUpon>
+    </Compile>
     <Compile Include="Simulator.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -96,6 +102,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="Transition.resx">
+      <DependentUpon>Transition.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

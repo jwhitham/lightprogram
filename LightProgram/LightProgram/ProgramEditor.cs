@@ -17,6 +17,7 @@ namespace LightProgram
         private LightChooser lightChooser = null;
         private int program_number = -1;
         private Transition transition = null;
+        private SetDisplay set_display = null;
         private Instruction last_added_transition = null;
 
         public class InstructionEditor
@@ -40,12 +41,14 @@ namespace LightProgram
             this.lightChooser = lightChooser;
             InitializeComponent();
             this.transition = new Transition(this);
+            this.set_display = new SetDisplay(this);
         }
 
         public void SetComms(Comms comms)
         {
             this.comms = comms;
             this.transition.SetComms(comms);
+            this.set_display.SetComms(comms);
         }
 
         public void SetProgram(InstructionList inst_list, int program_number)
@@ -304,8 +307,19 @@ namespace LightProgram
             if (this.instructions.SelectedItems.Count != 0)
             {
                 InstructionEditor inst_ed = (InstructionEditor)this.instructions.Items[this.instructions.SelectedIndex];
-                this.transition.SetInstruction(inst_ed.inst);
-                this.transition.Show();
+                switch (inst_ed.inst.t)
+                {
+                    case InstructionType.InstructionTransition:
+                        this.transition.SetInstruction(inst_ed.inst);
+                        this.transition.Show();
+                        break;
+                    case InstructionType.InstructionSetDisplay:
+                        this.set_display.SetInstruction(inst_ed.inst);
+                        this.set_display.Show();
+                        break;
+                    default:
+                        break;
+                }
             }
             revalidate();
         }

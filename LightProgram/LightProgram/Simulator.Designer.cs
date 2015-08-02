@@ -41,9 +41,9 @@
             this.display.BackColor = System.Drawing.Color.Black;
             this.display.Font = new System.Drawing.Font("Courier New", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.display.ForeColor = System.Drawing.Color.Red;
-            this.display.Location = new System.Drawing.Point(96, 9);
+            this.display.Location = new System.Drawing.Point(171, 9);
             this.display.Name = "display";
-            this.display.Size = new System.Drawing.Size(110, 78);
+            this.display.Size = new System.Drawing.Size(35, 78);
             this.display.TabIndex = 6;
             this.display.Text = "F";
             this.display.TextAlign = System.Drawing.ContentAlignment.MiddleRight;

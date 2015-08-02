@@ -186,6 +186,39 @@ namespace LightProgram
             checkProgramThenDoSomething(ModeType.SaveMode);
         }
 
+        private void insertAndEdit(Instruction inst)
+        {
+            InstructionEditor inst_ed = new InstructionEditor(inst);
+            if (this.instructions.SelectedItems.Count != 0)
+            {
+                int i = this.instructions.SelectedIndex;
+                this.instructions.Items.Insert(i, inst_ed);
+            }
+            else
+            {
+                this.instructions.Items.Add(inst_ed);
+            }
+            editItem(inst_ed);
+        }
+
+        private void editItem(InstructionEditor inst_ed)
+        {
+            switch (inst_ed.inst.t)
+            {
+                case InstructionType.InstructionTransition:
+                    this.transition.SetInstruction(inst_ed.inst);
+                    this.transition.Show();
+                    break;
+                case InstructionType.InstructionSetDisplay:
+                    this.set_display.SetInstruction(inst_ed.inst);
+                    this.set_display.Show();
+                    break;
+                default:
+                    break;
+            }
+            revalidate();
+        }
+
         private void addTransitionClicked(object sender, EventArgs e)
         {
             Instruction inst = new Instruction();
@@ -197,24 +230,14 @@ namespace LightProgram
                 inst.b = last_added_transition.b;
                 inst.value = last_added_transition.value;
             }
-            InstructionEditor inst_ed = new InstructionEditor(inst);
-            if (this.instructions.SelectedItems.Count != 0)
-            {
-                int i = this.instructions.SelectedIndex;
-                this.instructions.Items.Insert(i, inst_ed);
-            }
-            else
-            {
-                this.instructions.Items.Add(inst_ed);
-            }
-            this.transition.SetInstruction(inst_ed.inst);            
-            this.transition.Show();
-            revalidate();
+            insertAndEdit(inst);
         }
 
         private void addDisplayButton(object sender, EventArgs e)
         {
-            revalidate();
+            Instruction inst = new Instruction();
+            inst.t = InstructionType.InstructionSetDisplay;
+            insertAndEdit(inst);
         }
 
         private void moveUpButton(object sender, EventArgs e)
@@ -275,6 +298,10 @@ namespace LightProgram
 
         public void refreshInstruction(Instruction inst)
         {
+            if (inst.t == InstructionType.InstructionTransition)
+            {
+                last_added_transition = inst;
+            }
             int i, j = this.instructions.Items.Count;
             for (i = 0; i < j; i++)
             {
@@ -307,21 +334,8 @@ namespace LightProgram
             if (this.instructions.SelectedItems.Count != 0)
             {
                 InstructionEditor inst_ed = (InstructionEditor)this.instructions.Items[this.instructions.SelectedIndex];
-                switch (inst_ed.inst.t)
-                {
-                    case InstructionType.InstructionTransition:
-                        this.transition.SetInstruction(inst_ed.inst);
-                        this.transition.Show();
-                        break;
-                    case InstructionType.InstructionSetDisplay:
-                        this.set_display.SetInstruction(inst_ed.inst);
-                        this.set_display.Show();
-                        break;
-                    default:
-                        break;
-                }
+                editItem(inst_ed);
             }
-            revalidate();
         }
 
         private void instructions_MouseDoubleClick(object sender, MouseEventArgs e)

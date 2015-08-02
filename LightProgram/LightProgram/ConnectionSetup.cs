@@ -37,17 +37,21 @@ namespace LightProgram
             this.connectionInfo.ReadOnly = true;
             this.connectionInfo.Clear();
             this.AppendText("Light Program");
+            this.simulator = new Simulator(this);
+            this.lightChooser = new LightChooser(this);
+            this.comms = new Comms();
+            this.lightChooser.SetComms(this.comms);
         }
 
         private void TimerTick(object sender, EventArgs e)
         {
-            if (this.lightChooser == null)
+            if (!this.lightChooser.Visible)
             {
                 RefreshPorts();
             }
-            if (this.simulator != null)
+            if (this.comms is SimulatorComms)
             {
-                this.simulator.RefreshSimulation();
+                this.simulator.RefreshSimulation((SimulatorComms)this.comms);
             }
             RefreshText();
         }
@@ -120,21 +124,18 @@ namespace LightProgram
                     case ReplyType.ReplyConnected:
                         // Connected
                         this.AppendText("Connected");
-                        if (this.lightChooser == null)
-                        {
-                            this.lightChooser = new LightChooser(this.comms, this);
-                        }
                         this.lightChooser.SetColour(r.red, r.green, r.blue);
                         this.lightChooser.Show();
+                        break;
+                    case ReplyType.ReplyGotColour:
+                        // Colour update from Arduino
+                        this.lightChooser.SetColour(r.red, r.green, r.blue);
                         break;
                     case ReplyType.ReplyError:
                         // Disconnected
                         this.AppendText(r.errorCode);
                         this.connectButton.Enabled = true;
-                        if (this.lightChooser != null)
-                        {
-                            Disconnect();
-                        }
+                        this.lightChooser.Hide();
                         break;
                     case ReplyType.ReplyMsg:
                         // Some other message
@@ -177,39 +178,25 @@ namespace LightProgram
 
             if (port == simulation)
             {
-                SimulatorComms sc = new SimulatorComms();
-                this.comms = (Comms) sc;
-                this.simulator = new Simulator(sc, this);
+                this.comms = new SimulatorComms();
+                this.simulator.Show();
             }
             else
             {
                 this.comms = new SerialComms();
             }
             this.comms.Connect(port);
+            this.lightChooser.SetComms(this.comms);
 
         }
 
         public void Disconnect(object sender = null, FormClosedEventArgs e = null)
         {
-            if (this.lightChooser != null)
-            {
-                Form a = (Form) this.lightChooser;
-                this.lightChooser = null;
-                a.Close();
-            }
-
-            if (this.simulator != null)
-            {
-                Form a = (Form)this.simulator;
-                this.simulator = null;
-                a.Close();
-            }
-            if (this.comms != null)
-            {
-                Comms a = this.comms;
-                this.comms = null;
-                a.Disconnect();
-            }
+            this.lightChooser.Hide();
+            this.connectButton.Enabled = true;
+            this.simulator.Hide();
+            this.comms = new Comms();
+            this.lightChooser.SetComms(this.comms);
         }
 
         private void ExitClick(object sender, EventArgs e)
@@ -231,6 +218,5 @@ namespace LightProgram
         {
 
         }
-
     }
 }

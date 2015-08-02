@@ -111,6 +111,8 @@
             this.Controls.Add(this.connectButton);
             this.Controls.Add(this.exitButton);
             this.Controls.Add(this.groupBox1);
+            this.MaximumSize = new System.Drawing.Size(449, 270);
+            this.MinimumSize = new System.Drawing.Size(449, 270);
             this.Name = "ConnectionSetup";
             this.Text = "Light Program";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Disconnect);

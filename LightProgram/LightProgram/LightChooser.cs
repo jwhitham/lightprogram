@@ -49,21 +49,30 @@ namespace LightProgram
         };
 
         private Dictionary<int, ProgramListItem> programs = null;
-        private ConnectionSetup previous = null;
+        private ConnectionSetup connectionSetup = null;
 
-        public LightChooser(Comms comms, ConnectionSetup previous)
+        public LightChooser(ConnectionSetup connectionSetup)
         {
-            this.comms = comms;
-            this.previous = previous;
+            this.connectionSetup = connectionSetup;
+            this.comms = new Comms();
             this.programs = new Dictionary<int, ProgramListItem> ();
-            this.programEditor = new ProgramEditor(this.comms, this);
+            this.programEditor = new ProgramEditor(this);
             InitializeComponent();
             this.programList.FormattingEnabled = false;
         }
 
-        private void barChanged()
+        public void SetComms(Comms comms)
         {
-            this.comms.SetColour(this.redBar.Value, this.greenBar.Value, this.blueBar.Value);
+            this.comms = comms;
+            this.programEditor.SetComms(comms);
+        }
+
+        private void barChanged(bool send)
+        {
+            if (send)
+            {
+                this.comms.SetColour(this.redBar.Value, this.greenBar.Value, this.blueBar.Value);
+            }
             this.redLabel.Text = String.Format("{0:X02}", this.redBar.Value);
             this.greenLabel.Text = String.Format("{0:X02}", this.greenBar.Value);
             this.blueLabel.Text = String.Format("{0:X02}", this.blueBar.Value);
@@ -74,7 +83,7 @@ namespace LightProgram
             this.redBar.Value = red;
             this.greenBar.Value = green;
             this.blueBar.Value = blue;
-            barChanged();
+            barChanged(false);
         }
 
         public void SetProgram(int program_number, byte[] program_bytes)
@@ -104,7 +113,7 @@ namespace LightProgram
 
         private void closeClicked(object sender, FormClosedEventArgs e)
         {
-            this.previous.Disconnect();
+            this.connectionSetup.Disconnect();
         }
 
         private void disconnectClicked(object sender, EventArgs e)
@@ -135,36 +144,18 @@ namespace LightProgram
 
         private void redChanged(object sender, EventArgs e)
         {
-            barChanged();
+            barChanged(true);
         }
 
         private void greenChanged(object sender, EventArgs e)
         {
-            barChanged();
+            barChanged(true);
         }
 
         private void blueChanged(object sender, EventArgs e)
         {
-            barChanged();
+            barChanged(true);
         }
 
-        private void applyClicked(object sender, EventArgs e)
-        {
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void groupBox1_Enter(object sender, EventArgs e)
-        {
-
-        }
-
-        private void redLabel_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }

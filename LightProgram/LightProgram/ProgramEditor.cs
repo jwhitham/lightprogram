@@ -17,12 +17,13 @@ namespace LightProgram
         private LightChooser lightChooser = null;
         private int program_number = -1;
         private Transition transition = null;
+        private Instruction last_added_transition = null;
 
-        public class InstructionEditor : ListViewItem
+        public class InstructionEditor
         {
             public Instruction inst = null;
  
-            public InstructionEditor(Instruction inst) : base(inst.ToString())
+            public InstructionEditor(Instruction inst)
             {
                 this.inst = inst;
             }
@@ -33,21 +34,24 @@ namespace LightProgram
             }
         };
 
-        public ProgramEditor(Comms comms, LightChooser lightChooser)
+        public ProgramEditor(LightChooser lightChooser)
         {
-            this.comms = comms;
+            this.comms = new Comms();
             this.lightChooser = lightChooser;
             InitializeComponent();
-            this.transition = new Transition();
+            this.transition = new Transition(this);
+        }
+
+        public void SetComms(Comms comms)
+        {
+            this.comms = comms;
+            this.transition.SetComms(comms);
         }
 
         public void SetProgram(InstructionList inst_list, int program_number)
         {
-            if (this.transition != null)
-            {
-                this.transition.Close();
-                this.transition = null;
-            }
+            this.transition.Hide();
+
             // make a copy of the program
             byte[] tmp = new byte[Comms.program_size];
             inst_list.encode(tmp);
@@ -72,11 +76,6 @@ namespace LightProgram
 
         }
         
-        private void closeClicked(object sender, FormClosedEventArgs e)
-        {
-            this.Hide();
-        }
-
         private void doneClicked(object sender, EventArgs e)
         {
             this.Hide();
@@ -184,13 +183,29 @@ namespace LightProgram
             checkProgramThenDoSomething(ModeType.SaveMode);
         }
 
-        private void groupBox4_Enter(object sender, EventArgs e)
-        {
-
-        }
-
         private void addTransitionClicked(object sender, EventArgs e)
         {
+            Instruction inst = new Instruction();
+            inst.t = InstructionType.InstructionTransition;
+            if (last_added_transition != null)
+            {
+                inst.r = last_added_transition.r;
+                inst.g = last_added_transition.g;
+                inst.b = last_added_transition.b;
+                inst.value = last_added_transition.value;
+            }
+            InstructionEditor inst_ed = new InstructionEditor(inst);
+            if (this.instructions.SelectedItems.Count != 0)
+            {
+                int i = this.instructions.SelectedIndex;
+                this.instructions.Items.Insert(i, inst_ed);
+            }
+            else
+            {
+                this.instructions.Items.Add(inst_ed);
+            }
+            this.transition.SetInstruction(inst_ed.inst);            
+            this.transition.Show();
             revalidate();
         }
 
@@ -255,8 +270,34 @@ namespace LightProgram
             this.delete.Enabled = selection;
         }
 
+        public void refreshInstruction(Instruction inst)
+        {
+            int i, j = this.instructions.Items.Count;
+            for (i = 0; i < j; i++)
+            {
+                InstructionEditor inst_ed = (InstructionEditor) this.instructions.Items[i];
+                if (inst_ed.inst == inst)
+                {
+                    this.instructions.Items.RemoveAt(i);
+                    this.instructions.Items.Insert(i, inst_ed);
+                    if (i < j)
+                    {
+                        this.instructions.SetSelected(i + 1, true);
+                    }
+                    revalidate();
+                    return;
+                }
+            }
+        }
+
         private void editClicked(object sender, EventArgs e)
         {
+            if (this.instructions.SelectedItems.Count != 0)
+            {
+                InstructionEditor inst_ed = (InstructionEditor)this.instructions.Items[this.instructions.SelectedIndex];
+                this.transition.SetInstruction(inst_ed.inst);
+                this.transition.Show();
+            }
             revalidate();
         }
 
@@ -300,5 +341,10 @@ namespace LightProgram
             buttonsUpdate();
         }
 
+        private void closeButton(object sender, FormClosingEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true;
+        }
     }
 }

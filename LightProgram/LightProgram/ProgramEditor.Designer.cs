@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.instructions = new System.Windows.Forms.ListBox();
             this.button1 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
@@ -37,13 +38,12 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.properties = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.edit = new System.Windows.Forms.Button();
             this.delete = new System.Windows.Forms.Button();
             this.move_down = new System.Windows.Forms.Button();
             this.move_up = new System.Windows.Forms.Button();
             this.add_display = new System.Windows.Forms.Button();
             this.add_transition = new System.Windows.Forms.Button();
-            this.instructions = new System.Windows.Forms.ListBox();
-            this.edit = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -59,6 +59,19 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Instructions";
+            // 
+            // instructions
+            // 
+            this.instructions.AllowDrop = true;
+            this.instructions.FormattingEnabled = true;
+            this.instructions.Location = new System.Drawing.Point(7, 19);
+            this.instructions.Name = "instructions";
+            this.instructions.Size = new System.Drawing.Size(286, 290);
+            this.instructions.TabIndex = 0;
+            this.instructions.SelectedIndexChanged += new System.EventHandler(this.instructions_SelectedIndexChanged);
+            this.instructions.DragDrop += new System.Windows.Forms.DragEventHandler(this.instructionsDragDrop);
+            this.instructions.DragOver += new System.Windows.Forms.DragEventHandler(this.instructionsDragOver);
+            this.instructions.MouseDown += new System.Windows.Forms.MouseEventHandler(this.instructionsMouseDown);
             // 
             // button1
             // 
@@ -140,7 +153,16 @@
             this.groupBox4.TabIndex = 7;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Edit Controls";
-            this.groupBox4.Enter += new System.EventHandler(this.groupBox4_Enter);
+            // 
+            // edit
+            // 
+            this.edit.Location = new System.Drawing.Point(7, 139);
+            this.edit.Name = "edit";
+            this.edit.Size = new System.Drawing.Size(106, 23);
+            this.edit.TabIndex = 5;
+            this.edit.Text = "Edit";
+            this.edit.UseVisualStyleBackColor = true;
+            this.edit.Click += new System.EventHandler(this.editClicked);
             // 
             // delete
             // 
@@ -192,29 +214,6 @@
             this.add_transition.UseVisualStyleBackColor = true;
             this.add_transition.Click += new System.EventHandler(this.addTransitionClicked);
             // 
-            // instructions
-            // 
-            this.instructions.AllowDrop = true;
-            this.instructions.FormattingEnabled = true;
-            this.instructions.Location = new System.Drawing.Point(7, 19);
-            this.instructions.Name = "instructions";
-            this.instructions.Size = new System.Drawing.Size(286, 290);
-            this.instructions.TabIndex = 0;
-            this.instructions.SelectedIndexChanged += new System.EventHandler(this.instructions_SelectedIndexChanged);
-            this.instructions.DragDrop += new System.Windows.Forms.DragEventHandler(this.instructionsDragDrop);
-            this.instructions.DragOver += new System.Windows.Forms.DragEventHandler(this.instructionsDragOver);
-            this.instructions.MouseDown += new System.Windows.Forms.MouseEventHandler(this.instructionsMouseDown);
-            // 
-            // edit
-            // 
-            this.edit.Location = new System.Drawing.Point(7, 139);
-            this.edit.Name = "edit";
-            this.edit.Size = new System.Drawing.Size(106, 23);
-            this.edit.TabIndex = 5;
-            this.edit.Text = "Edit";
-            this.edit.UseVisualStyleBackColor = true;
-            this.edit.Click += new System.EventHandler(this.editClicked);
-            // 
             // ProgramEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -227,9 +226,11 @@
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.groupBox1);
+            this.MaximumSize = new System.Drawing.Size(465, 460);
+            this.MinimumSize = new System.Drawing.Size(465, 460);
             this.Name = "ProgramEditor";
             this.Text = "Program Editor";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.closeClicked);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.closeButton);
             this.Load += new System.EventHandler(this.ProgramEditor_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);

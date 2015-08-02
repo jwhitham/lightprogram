@@ -41,9 +41,9 @@
             this.blueLabel = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.timeBar = new System.Windows.Forms.TrackBar();
             this.timeLabel = new System.Windows.Forms.Label();
-            this.panel1 = new System.Windows.Forms.Panel();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
@@ -106,6 +106,7 @@
             this.redBar.Name = "redBar";
             this.redBar.Size = new System.Drawing.Size(298, 35);
             this.redBar.TabIndex = 0;
+            this.redBar.Scroll += new System.EventHandler(this.redChanged);
             // 
             // redLabel
             // 
@@ -142,6 +143,7 @@
             this.greenBar.Name = "greenBar";
             this.greenBar.Size = new System.Drawing.Size(298, 35);
             this.greenBar.TabIndex = 1;
+            this.greenBar.Scroll += new System.EventHandler(this.greenChanged);
             // 
             // greenLabel
             // 
@@ -178,6 +180,7 @@
             this.blueBar.Name = "blueBar";
             this.blueBar.Size = new System.Drawing.Size(298, 35);
             this.blueBar.TabIndex = 2;
+            this.blueBar.Scroll += new System.EventHandler(this.blueChanged);
             // 
             // blueLabel
             // 
@@ -214,6 +217,14 @@
             this.flowLayoutPanel2.Size = new System.Drawing.Size(386, 44);
             this.flowLayoutPanel2.TabIndex = 4;
             // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.Color.Transparent;
+            this.panel1.Location = new System.Drawing.Point(3, 3);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(5, 35);
+            this.panel1.TabIndex = 0;
+            // 
             // timeBar
             // 
             this.timeBar.AccessibleDescription = "Red";
@@ -229,6 +240,7 @@
             this.timeBar.Size = new System.Drawing.Size(277, 35);
             this.timeBar.SmallChange = 100;
             this.timeBar.TabIndex = 0;
+            this.timeBar.Scroll += new System.EventHandler(this.timeChanged);
             // 
             // timeLabel
             // 
@@ -242,15 +254,6 @@
             this.timeLabel.TabIndex = 5;
             this.timeLabel.Text = "65535ms";
             this.timeLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.timeLabel.Click += new System.EventHandler(this.label1_Click);
-            // 
-            // panel1
-            // 
-            this.panel1.BackColor = System.Drawing.Color.Transparent;
-            this.panel1.Location = new System.Drawing.Point(3, 3);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(5, 35);
-            this.panel1.TabIndex = 0;
             // 
             // button1
             // 
@@ -269,6 +272,7 @@
             this.button2.TabIndex = 7;
             this.button2.Text = "Cancel";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.cancelButton);
             // 
             // Transition
             // 
@@ -279,8 +283,11 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
+            this.MaximumSize = new System.Drawing.Size(447, 316);
+            this.MinimumSize = new System.Drawing.Size(447, 316);
             this.Name = "Transition";
             this.Text = "Transition";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.closeButton);
             this.groupBox1.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();

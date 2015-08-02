@@ -13,7 +13,8 @@ namespace LightProgram
     public enum CommandType
     {
         CommandNone, CommandConnect, CommandSetColour, CommandSetDisplay, CommandExit,
-        CommandRunEEPROMProgram, CommandRunTemporaryProgram, CommandSaveEEPROMProgram
+        CommandRunEEPROMProgram, CommandRunTemporaryProgram, CommandSaveEEPROMProgram,
+        CommandGetColour
     }
     public struct Command
     {
@@ -26,7 +27,7 @@ namespace LightProgram
     }
     public enum ReplyType
     {
-        ReplyNone, ReplyConnected, ReplyError, ReplyMsg, ReplyProgram
+        ReplyNone, ReplyConnected, ReplyError, ReplyMsg, ReplyProgram, ReplyGotColour
     }
     public struct Reply
     {
@@ -49,7 +50,9 @@ namespace LightProgram
 
         public virtual Reply GetReply()
         {
-            throw new Exception("Method needs to be implemented");
+            Reply r = new Reply();
+            r.t = ReplyType.ReplyNone;
+            return r;
         }
 
         public virtual void Disconnect()
@@ -58,7 +61,6 @@ namespace LightProgram
 
         public virtual void SendCommand(Command c)
         {
-            throw new Exception("Method needs to be implemented");
         }
 
         public void Connect(String portName)
@@ -352,9 +354,11 @@ namespace LightProgram
 
             Command colour = new Command();
             LinkedList<Command> sequential = new LinkedList<Command>();
+            bool get_colour = false;
             while (true)
             {
                 colour.t = CommandType.CommandNone;
+                get_colour = false;
                 sequential.Clear();
 
                 // Await messages
@@ -377,6 +381,10 @@ namespace LightProgram
                             case CommandType.CommandSetColour:
                                 // Only keep the most recent colour command
                                 colour = cmd;
+                                break;
+                            case CommandType.CommandGetColour:
+                                // Done after SetColour
+                                get_colour = true;
                                 break;
                             case CommandType.CommandExit:
                                 // exit takes priority over everything else: immediate exit
@@ -560,6 +568,22 @@ namespace LightProgram
                     b[2] = (byte) colour.green;
                     b[3] = (byte) colour.blue;
                     SendSerialCommand (b, 4);
+                }
+                if (get_colour)
+                {
+                    get_colour = false;
+                    byte[] bytesOut = new byte[1];
+                    bytesOut[0] = (byte)'c'; // request current colour
+                    SendSerialCommand(bytesOut, 1);
+                    byte[] bytesIn = new byte[3];
+                    ReadSerialBytes(bytesIn, 3);
+                    Reply r = new Reply();
+                    r.t = ReplyType.ReplyProgram;
+                    r.red = (int)bytesIn[0];
+                    r.green = (int)bytesIn[1];
+                    r.blue = (int)bytesIn[2];
+                    r.t = ReplyType.ReplyGotColour;
+                    SendReply(r);
                 }
             }
         }

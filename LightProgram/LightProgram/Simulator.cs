@@ -12,7 +12,6 @@ namespace LightProgram
 {
     public partial class Simulator : Form
     {
-        private SimulatorComms simulatorComms = null;
         public const string program_store = "simulated_eeprom_";
         private InstructionList simulated_program = null;
         private long start_time = 0;
@@ -21,12 +20,11 @@ namespace LightProgram
         private int r = 0;
         private int g = 0;
         private int b = 0;
-        private ConnectionSetup previous = null;
+        private ConnectionSetup connectionSetup = null;
 
-        public Simulator(SimulatorComms simulatorComms, ConnectionSetup previous)
+        public Simulator(ConnectionSetup previous)
         {
-            this.simulatorComms = simulatorComms;
-            this.previous = previous;
+            this.connectionSetup = previous;
             this.simulated_program = null;
             InitializeComponent();
             this.programState.Text = "";
@@ -89,10 +87,8 @@ namespace LightProgram
             { }
         }
 
-        public void RefreshSimulation()
+        public void RefreshSimulation(SimulatorComms comms)
         {
-            if (this.simulatorComms == null) return;
-
             if (this.simulated_program != null)
             {
                 long ticks = DateTime.Now.Ticks - this.start_time;
@@ -168,7 +164,7 @@ namespace LightProgram
 
             while (true)
             {
-                Command c = this.simulatorComms.SimulatorGetCommand();
+                Command c = comms.SimulatorGetCommand();
                 Reply r;
                 switch (c.t)
                 {
@@ -178,7 +174,7 @@ namespace LightProgram
                         r = new Reply();
                         r.red = r.green = r.blue = 0x20;
                         r.t = ReplyType.ReplyConnected;
-                        this.simulatorComms.SimulatorSendReply(r);
+                        comms.SimulatorSendReply(r);
                         for (int i = 0; i < Comms.num_programs; i++)
                         {
                             r = new Reply();
@@ -186,20 +182,30 @@ namespace LightProgram
                             r.program_bytes = readProgram(i);
 
                             r.t = ReplyType.ReplyProgram;
-                            this.simulatorComms.SimulatorSendReply(r);
+                            comms.SimulatorSendReply(r);
                         }
 
                         r = new Reply();
                         r.errorCode = "Simulated mode";
                         r.t = ReplyType.ReplyMsg;
-                        this.simulatorComms.SimulatorSendReply(r);
+                        comms.SimulatorSendReply(r);
                         this.display.Text = "C";
                         this.Show();
                         break;
                     case CommandType.CommandSetColour:
                         this.simulated_program = null;
                         this.setColour(c.red, c.green, c.blue);
+                        this.r = c.red;
+                        this.g = c.green;
+                        this.b = c.blue;
                         this.programState.Text = "";
+                        break;
+                    case CommandType.CommandGetColour:
+                        this.simulated_program = null;
+                        r = new Reply();
+                        r.red = this.r; r.green = this.g; r.blue = this.b;
+                        r.t = ReplyType.ReplyGotColour;
+                        comms.SimulatorSendReply(r);
                         break;
                     case CommandType.CommandSetDisplay:
                         this.simulated_program = null;
@@ -211,11 +217,11 @@ namespace LightProgram
                         break;
                     case CommandType.CommandRunEEPROMProgram:
                         this.simulated_program = new InstructionList(readProgram(c.value));
-                        startProgram("" + c.value);
+                        startProgram(comms, "" + c.value);
                         break;
                     case CommandType.CommandRunTemporaryProgram:
                         this.simulated_program = new InstructionList(c.program_bytes);
-                        startProgram("(temporary)");
+                        startProgram(comms, "(temporary)");
                         break;
                     case CommandType.CommandSaveEEPROMProgram:
                         writeProgram(c.program_number, c.program_bytes);
@@ -223,11 +229,11 @@ namespace LightProgram
                         r.t = ReplyType.ReplyProgram;
                         r.program_number = c.program_number;
                         r.program_bytes = readProgram(c.program_number);
-                        this.simulatorComms.SimulatorSendReply(r);
+                        comms.SimulatorSendReply(r);
                         r = new Reply();
                         r.errorCode = "Written to simulated EEPROM";
                         r.t = ReplyType.ReplyMsg;
-                        this.simulatorComms.SimulatorSendReply(r);
+                        comms.SimulatorSendReply(r);
                         break;
                 }
             }
@@ -250,7 +256,7 @@ namespace LightProgram
             this.light.BackColor = Color.FromArgb(r, g, b);
         }
 
-        private void startProgram(string name)
+        private void startProgram(SimulatorComms comms, string name)
         {
             Reply r;
             this.start_time = DateTime.Now.Ticks;
@@ -261,7 +267,7 @@ namespace LightProgram
                 r = new Reply();
                 r.errorCode = "Program " + name + " contains no instructions.";
                 r.t = ReplyType.ReplyMsg;
-                this.simulatorComms.SimulatorSendReply(r);
+                comms.SimulatorSendReply(r);
                 this.simulated_program = null;
             }
             else if (this.simulated_program.end_time <= 0)
@@ -269,7 +275,7 @@ namespace LightProgram
                 r = new Reply();
                 r.errorCode = "Program " + name + " has no running time.";
                 r.t = ReplyType.ReplyMsg;
-                this.simulatorComms.SimulatorSendReply(r);
+                comms.SimulatorSendReply(r);
                 this.simulated_program = null;
             }
             else
@@ -277,7 +283,7 @@ namespace LightProgram
                 r = new Reply();
                 r.errorCode = "Program " + name + " simulating...";
                 r.t = ReplyType.ReplyMsg;
-                this.simulatorComms.SimulatorSendReply(r);
+                comms.SimulatorSendReply(r);
             }
             this.programState.Text = r.errorCode;
         }
@@ -310,14 +316,16 @@ namespace LightProgram
             }
         }
 
-        private void closeClicked(object sender, FormClosedEventArgs e)
-        {
-            this.previous.Disconnect();
-        }
-
         private void light_Paint(object sender, PaintEventArgs e)
         {
 
+        }
+
+        private void closeButton(object sender, FormClosingEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true;
+            this.connectionSetup.Disconnect();
         }
     }
 }

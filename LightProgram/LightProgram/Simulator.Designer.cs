@@ -76,9 +76,11 @@
             this.Controls.Add(this.programState);
             this.Controls.Add(this.light);
             this.Controls.Add(this.display);
+            this.MaximumSize = new System.Drawing.Size(234, 158);
+            this.MinimumSize = new System.Drawing.Size(234, 158);
             this.Name = "Simulator";
             this.Text = "Simulator";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.closeClicked);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.closeButton);
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -252,7 +252,7 @@
             this.MaximumSize = new System.Drawing.Size(448, 410);
             this.MinimumSize = new System.Drawing.Size(448, 410);
             this.Name = "LightChooser";
-            this.Text = "Light Program";
+            this.Text = "Light Program - Controller";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.closeClicked);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);

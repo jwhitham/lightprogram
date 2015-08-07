@@ -299,7 +299,7 @@
             this.MaximumSize = new System.Drawing.Size(447, 316);
             this.MinimumSize = new System.Drawing.Size(447, 316);
             this.Name = "Transition";
-            this.Text = "Transition";
+            this.Text = "Light Program - Transition";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.closeButton);
             this.groupBox1.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);

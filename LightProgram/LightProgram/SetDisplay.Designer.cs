@@ -132,7 +132,7 @@
             this.Controls.Add(this.cancel);
             this.Controls.Add(this.ok);
             this.Name = "SetDisplay";
-            this.Text = "Set Display";
+            this.Text = "Light Program - Set Display";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.closeButton);
             this.groupBox2.ResumeLayout(false);
             this.flowLayoutPanel2.ResumeLayout(false);

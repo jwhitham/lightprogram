@@ -79,7 +79,7 @@
             this.MaximumSize = new System.Drawing.Size(234, 158);
             this.MinimumSize = new System.Drawing.Size(234, 158);
             this.Name = "Simulator";
-            this.Text = "Simulator";
+            this.Text = "Device Simulator";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.closeButton);
             this.ResumeLayout(false);
             this.PerformLayout();

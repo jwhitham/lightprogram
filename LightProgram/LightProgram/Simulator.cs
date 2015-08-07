@@ -30,63 +30,6 @@ namespace LightProgram
             this.programState.Text = "";
         }
 
-        private byte[] readProgram(int program_number)
-        {
-            string name = program_store + program_number;
-            BinaryReader reader = null;
-            byte[] output = null;
-
-            try
-            {
-                reader = new BinaryReader(File.Open(name, FileMode.Open));
-            }
-            catch (Exception)
-            { }
-            try
-            {
-                output = reader.ReadBytes(Comms.program_size);
-            }
-            catch (Exception)
-            { }
-            try
-            {
-                reader.Close();
-            }
-            catch (Exception)
-            { }
-            if ((output == null) || (output.Length != Comms.program_size))
-            {
-                output = new byte[Comms.program_size];
-                writeProgram(program_number, output);
-            }
-            return output;
-        }
-
-        private void writeProgram (int program_number, byte[] output)
-        {
-            string name = program_store + program_number;
-            BinaryWriter writer = null;
-
-            try
-            {
-                writer = new BinaryWriter(File.Open(name, FileMode.Create));
-            }
-            catch (Exception)
-            { }
-            try
-            {
-                writer.Write(output);
-            }
-            catch (Exception)
-            { }
-            try
-            {
-                writer.Close();
-            }
-            catch (Exception)
-            { }
-        }
-
         public void RefreshSimulation(SimulatorComms comms)
         {
             if (this.simulated_program != null)
@@ -237,6 +180,23 @@ namespace LightProgram
                         break;
                 }
             }
+        }
+
+        private byte[] readProgram(int program_number)
+        {
+            byte[] output = ProgramIO.readProgram(program_store + program_number);
+            if ((output == null) || (output.Length != Comms.program_size))
+            {
+                // invalid program, rewrite blank
+                output = new byte[Comms.program_size];
+                writeProgram(program_number, output);
+            }
+            return output;
+        }
+
+        private void writeProgram(int program_number, byte[] program_bytes)
+        {
+            ProgramIO.writeProgram(program_store + program_number, program_bytes);
         }
 
         private void setDisplay(int v)

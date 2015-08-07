@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.IO.Ports;
 using System.ComponentModel;
+using System.IO;
 
 namespace LightProgram
 {
@@ -942,6 +943,60 @@ namespace LightProgram
 
             return a;
         }
+    }
+
+    public class ProgramIO
+    {
+        public static byte[] readProgram(string name)
+        {
+            BinaryReader reader = null;
+            byte[] output = null;
+
+            try
+            {
+                reader = new BinaryReader(File.Open(name, FileMode.Open));
+            }
+            catch (Exception)
+            { }
+            try
+            {
+                output = reader.ReadBytes(Comms.program_size);
+            }
+            catch (Exception)
+            { }
+            try
+            {
+                reader.Close();
+            }
+            catch (Exception)
+            { }
+            return output;
+        }
+
+        public static void writeProgram(string name, byte[] output)
+        {
+            BinaryWriter writer = null;
+
+            try
+            {
+                writer = new BinaryWriter(File.Open(name, FileMode.Create));
+            }
+            catch (Exception)
+            { }
+            try
+            {
+                writer.Write(output);
+            }
+            catch (Exception)
+            { }
+            try
+            {
+                writer.Close();
+            }
+            catch (Exception)
+            { }
+        }
+
     }
 
     // Entry point

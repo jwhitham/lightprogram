@@ -19,6 +19,8 @@ namespace LightProgram
         private Transition transition = null;
         private SetDisplay set_display = null;
         private Instruction last_added_transition = null;
+        private static string save_filter = "Light Program files|*.lightprogram";
+        private string save_filename = null;
 
         public class InstructionEditor
         {
@@ -86,7 +88,7 @@ namespace LightProgram
 
         public enum ModeType
         {
-            RunMode, CheckMode, SaveMode
+            RunMode, CheckMode, SaveMode, ExportMode
         }
 
         private void checkProgramThenDoSomething(ModeType mode)
@@ -160,6 +162,25 @@ namespace LightProgram
                             this.Hide();
                             SetProgram(copy_inst_list, this.program_number);
                             buttonsUpdate();
+                        }
+                    }
+                    break;
+                case ModeType.ExportMode:
+                    if (err != "")
+                    {
+                        MessageBox.Show(err, "Export Program");
+                    }
+                    else
+                    {
+                        SaveFileDialog theDialog = new SaveFileDialog();
+                        theDialog.Title = "Export Light Program File";
+                        theDialog.Filter = save_filter;
+                        theDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                        theDialog.FileName = this.save_filename;
+                        if (theDialog.ShowDialog() == DialogResult.OK)
+                        {
+                            this.save_filename = theDialog.FileName;
+                            ProgramIO.writeProgram(this.save_filename, c.program_bytes);
                         }
                     }
                     break;
@@ -399,5 +420,36 @@ namespace LightProgram
             e.Cancel = true;
         }
 
+        private void namebox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void importButtonClicked(object sender, EventArgs e)
+        {
+            OpenFileDialog theDialog = new OpenFileDialog();
+            theDialog.Title = "Import Light Program File";
+            theDialog.Filter = save_filter;
+            theDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            if (theDialog.ShowDialog() == DialogResult.OK)
+            {
+                this.save_filename = theDialog.FileName;
+                byte[] new_program = ProgramIO.readProgram(this.save_filename);
+
+                if ((new_program == null) || (new_program.Length != Comms.program_size))
+                {
+                    MessageBox.Show("This program file is not valid", "Import Program");
+                }
+                else
+                {
+                    SetProgram(new InstructionList(new_program), this.program_number);
+                }
+            }
+        }
+
+        private void exportButtonClicked(object sender, EventArgs e)
+        {
+            checkProgramThenDoSomething(ModeType.ExportMode);
+        }
     }
 }

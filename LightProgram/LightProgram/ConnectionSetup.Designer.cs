@@ -58,7 +58,7 @@
             this.groupBox1.Size = new System.Drawing.Size(409, 181);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Connection Setup";
+            this.groupBox1.Text = "Device Connection Setup";
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
             // 
             // connectionInfo
@@ -78,9 +78,9 @@
             this.label1.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.label1.Location = new System.Drawing.Point(27, 23);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(55, 21);
+            this.label1.Size = new System.Drawing.Size(111, 21);
             this.label1.TabIndex = 1;
-            this.label1.Text = "Serial Port";
+            this.label1.Text = "Device Serial Port";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
@@ -88,7 +88,7 @@
             // 
             this.serialPortList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.serialPortList.FormattingEnabled = true;
-            this.serialPortList.Location = new System.Drawing.Point(88, 23);
+            this.serialPortList.Location = new System.Drawing.Point(144, 23);
             this.serialPortList.Name = "serialPortList";
             this.serialPortList.Size = new System.Drawing.Size(71, 21);
             this.serialPortList.TabIndex = 0;
@@ -114,7 +114,7 @@
             this.MaximumSize = new System.Drawing.Size(449, 270);
             this.MinimumSize = new System.Drawing.Size(449, 270);
             this.Name = "ConnectionSetup";
-            this.Text = "Light Program";
+            this.Text = "Light Program - Connection Setup";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Disconnect);
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);

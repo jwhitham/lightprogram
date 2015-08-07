@@ -20,6 +20,7 @@ namespace LightProgram
             this.programEditor = programEditor;
             this.comms = new Comms();
             InitializeComponent();
+            this.Icon = Properties.Resources.rgb;
         }
 
         public void SetInstruction(Instruction inst)

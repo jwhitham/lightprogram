@@ -28,6 +28,7 @@ namespace LightProgram
             InitializeComponent();
             this.timeBar.Minimum = 0;
             this.timeBar.Maximum = max_bar_value;
+            this.Icon = Properties.Resources.rgb;
         }
 
         public void SetInstruction(Instruction inst)

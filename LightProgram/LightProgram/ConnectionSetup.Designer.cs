@@ -112,7 +112,6 @@
             this.Controls.Add(this.connectButton);
             this.Controls.Add(this.exitButton);
             this.Controls.Add(this.groupBox1);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximumSize = new System.Drawing.Size(449, 270);
             this.MinimumSize = new System.Drawing.Size(449, 270);
             this.Name = "ConnectionSetup";

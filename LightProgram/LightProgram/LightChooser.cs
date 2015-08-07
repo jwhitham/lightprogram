@@ -59,6 +59,7 @@ namespace LightProgram
             this.programEditor = new ProgramEditor(this);
             InitializeComponent();
             this.programList.FormattingEnabled = false;
+            this.Icon = Properties.Resources.rgb;
         }
 
         public void SetComms(Comms comms)

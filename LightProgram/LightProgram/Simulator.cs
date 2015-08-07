@@ -28,6 +28,7 @@ namespace LightProgram
             this.simulated_program = null;
             InitializeComponent();
             this.programState.Text = "";
+            this.Icon = Properties.Resources.rgb;
         }
 
         public void RefreshSimulation(SimulatorComms comms)

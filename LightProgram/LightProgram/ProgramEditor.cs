@@ -44,6 +44,7 @@ namespace LightProgram
             InitializeComponent();
             this.transition = new Transition(this);
             this.set_display = new SetDisplay(this);
+            this.Icon = Properties.Resources.rgb;
         }
 
         public void SetComms(Comms comms)

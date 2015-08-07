@@ -41,6 +41,8 @@ namespace LightProgram
             this.lightChooser = new LightChooser(this);
             this.comms = new Comms();
             this.lightChooser.SetComms(this.comms);
+
+            this.Icon = Properties.Resources.rgb;
         }
 
         private void TimerTick(object sender, EventArgs e)

@@ -141,6 +141,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="rgb2.ino" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\DataSources\" />

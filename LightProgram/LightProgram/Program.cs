@@ -166,6 +166,7 @@ namespace LightProgram
         private Thread threadHandle;
         private SerialPort serialHandle;
         public static int timeout = 250;
+        public static int eeprom_write_timeout = 2000;
 
         public SerialComms()
         {
@@ -502,7 +503,7 @@ namespace LightProgram
                         case CommandType.CommandRunTemporaryProgram:
                             {
                                 byte[] bytesOut = new byte[Comms.program_size + 1];
-                                bytesOut[0] = (byte)'m'; // receive program from PC
+                                bytesOut[0] = (byte)'M'; // upload program via serial line (PC to Arduino)
                                 for (int i = 0; i < Comms.program_size; i++)
                                 {
                                     bytesOut[i + 1] = cmd.program_bytes[i];
@@ -532,7 +533,9 @@ namespace LightProgram
                                 SendSerialCommand(bytesOut, Comms.program_size + 1);
                                 bytesOut[0] = (byte)'S'; // save to EEPROM
                                 bytesOut[1] = (byte)cmd.program_number;
+                                this.serialHandle.ReadTimeout = eeprom_write_timeout;
                                 SendSerialCommand(bytesOut, 2);
+                                this.serialHandle.ReadTimeout = timeout;
                                 bytesOut[0] = (byte)'L'; // load program from EEPROM (readback)
                                 bytesOut[1] = (byte)cmd.program_number;
                                 SendSerialCommand(bytesOut, 2);

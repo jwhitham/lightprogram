@@ -78,7 +78,6 @@
             this.Controls.Add(this.light);
             this.Controls.Add(this.display);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximumSize = new System.Drawing.Size(234, 158);
             this.MinimumSize = new System.Drawing.Size(234, 158);
             this.Name = "Simulator";

@@ -252,7 +252,6 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximumSize = new System.Drawing.Size(448, 410);
             this.MinimumSize = new System.Drawing.Size(448, 410);
             this.Name = "LightChooser";

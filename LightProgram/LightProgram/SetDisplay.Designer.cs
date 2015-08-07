@@ -132,7 +132,6 @@
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.cancel);
             this.Controls.Add(this.ok);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "SetDisplay";
             this.Text = "Light Program - Set Display";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.closeButton);

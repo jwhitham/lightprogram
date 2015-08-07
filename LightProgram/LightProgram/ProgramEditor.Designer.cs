@@ -265,7 +265,6 @@
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.groupBox1);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximumSize = new System.Drawing.Size(465, 560);
             this.MinimumSize = new System.Drawing.Size(465, 460);
             this.Name = "ProgramEditor";

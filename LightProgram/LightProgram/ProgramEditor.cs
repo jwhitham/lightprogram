@@ -399,7 +399,7 @@ namespace LightProgram
                 }
                 else
                 {
-                    this.instructions.Items.RemoveAt(index);
+                    this.instructions.Items.Remove(data);
                     this.instructions.Items.Insert(index, data);
                     this.instructions.ClearSelected();
                 }

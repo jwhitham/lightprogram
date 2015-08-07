@@ -14,20 +14,20 @@ namespace LightProgram
         private ProgramEditor programEditor = null;
         private Instruction inst = null;
         private Comms comms = null;
-        private static string one_ms = "x 1ms";
-        private static string ten_ms = "x 10ms";
-        private static string hund_ms = "x 100ms";
-        private static string thou_ms  = "x 1s";
+        private static int max_bar_value = 999;
+        private static int min_nonzero_time_value = 39;
+        private static int max_time_value = 0xffff;
+        private int time_value = 0;
+        private static double bar_constant =
+            (max_bar_value - 1) / Math.Log(max_time_value - min_nonzero_time_value);
 
         public Transition(ProgramEditor programEditor)
         {
             this.programEditor = programEditor;
             this.comms = new Comms();
             InitializeComponent();
-            this.units.Items.Add(one_ms);
-            this.units.Items.Add(ten_ms);
-            this.units.Items.Add(hund_ms);
-            this.units.Items.Add(thou_ms);
+            this.timeBar.Minimum = 0;
+            this.timeBar.Maximum = max_bar_value;
         }
 
         public void SetInstruction(Instruction inst)
@@ -36,26 +36,16 @@ namespace LightProgram
             this.greenBar.Value = inst.g;
             this.blueBar.Value = inst.b;
 
-            if (inst.value < 100)
+            if (inst.value < min_nonzero_time_value)
             {
-                this.timeBar.Value = inst.value;
-                this.units.Text = one_ms;
-            }
-            else if (inst.value < 1000)
-            {
-                this.timeBar.Value = inst.value / 10;
-                this.units.Text = ten_ms;
-            }
-            else if (inst.value < 10000)
-            {
-                this.timeBar.Value = inst.value / 100;
-                this.units.Text = hund_ms;
+                this.timeBar.Value = 0;
             }
             else
             {
-                this.timeBar.Value = inst.value / 1000;
-                this.units.Text = thou_ms;
+                this.timeBar.Value = 1 + (int) Math.Floor(bar_constant * Math.Log(inst.value - min_nonzero_time_value));
             }
+
+            this.time_value = inst.value;
             this.inst = inst;
             barChanged();
         }
@@ -74,7 +64,7 @@ namespace LightProgram
             this.redLabel.Text = String.Format("{0:X02}", this.redBar.Value);
             this.greenLabel.Text = String.Format("{0:X02}", this.greenBar.Value);
             this.blueLabel.Text = String.Format("{0:X02}", this.blueBar.Value);
-            this.timeLabel.Text = "" + this.timeBar.Value;
+            this.timeLabel.Text = String.Format("{0:D}.{1:D03}s", this.time_value / 1000, this.time_value % 1000);
         }
 
         private void redChanged(object sender, EventArgs e)
@@ -94,6 +84,18 @@ namespace LightProgram
 
         private void timeChanged(object sender, EventArgs e)
         {
+            if (this.timeBar.Value <= 0)
+            {
+                this.time_value = 0;
+            }
+            else
+            {
+                this.time_value = min_nonzero_time_value + (int)Math.Floor(Math.Exp((this.timeBar.Value - 1) / bar_constant));
+                if (this.time_value > max_time_value)
+                {
+                    this.inst.value = max_time_value;
+                }
+            }
             barChanged();
         }
 
@@ -125,27 +127,7 @@ namespace LightProgram
             this.inst.r = this.redBar.Value;
             this.inst.g = this.greenBar.Value;
             this.inst.b = this.blueBar.Value;
-            this.inst.value = this.timeBar.Value;
-            if (this.units.Text == one_ms)
-            {
-                this.inst.value *= 1;
-            }
-            else if (this.units.Text == ten_ms)
-            {
-                this.inst.value *= 10;
-            }
-            else if (this.units.Text == hund_ms)
-            {
-                this.inst.value *= 100;
-            }
-            else
-            {
-                this.inst.value *= 1000;
-            }
-            if (this.inst.value >= 0x10000)
-            {
-                this.inst.value = 0xffff;
-            }
+            this.inst.value = this.time_value;
             this.programEditor.refreshInstruction(this.inst);
             this.inst = null;
         }

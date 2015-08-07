@@ -878,6 +878,7 @@ namespace LightProgram
                 }
                 this.name += (char)((byte)ch);
             }
+            this.name = this.name.Trim();
             if (!valid_name)
             {
                 this.name = "";

@@ -44,7 +44,6 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.timeBar = new System.Windows.Forms.TrackBar();
             this.timeLabel = new System.Windows.Forms.Label();
-            this.units = new System.Windows.Forms.ComboBox();
             this.ok = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
@@ -212,7 +211,6 @@
             this.flowLayoutPanel2.Controls.Add(this.panel1);
             this.flowLayoutPanel2.Controls.Add(this.timeBar);
             this.flowLayoutPanel2.Controls.Add(this.timeLabel);
-            this.flowLayoutPanel2.Controls.Add(this.units);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(15, 20);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
@@ -237,9 +235,9 @@
             this.timeBar.BackColor = System.Drawing.SystemColors.Control;
             this.timeBar.LargeChange = 10;
             this.timeBar.Location = new System.Drawing.Point(14, 3);
-            this.timeBar.Maximum = 99;
+            this.timeBar.Maximum = 999;
             this.timeBar.Name = "timeBar";
-            this.timeBar.Size = new System.Drawing.Size(237, 35);
+            this.timeBar.Size = new System.Drawing.Size(273, 35);
             this.timeBar.TabIndex = 0;
             this.timeBar.Scroll += new System.EventHandler(this.timeChanged);
             // 
@@ -249,23 +247,13 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.timeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.timeLabel.Location = new System.Drawing.Point(257, 0);
+            this.timeLabel.Location = new System.Drawing.Point(293, 0);
             this.timeLabel.Name = "timeLabel";
-            this.timeLabel.Size = new System.Drawing.Size(34, 41);
+            this.timeLabel.Size = new System.Drawing.Size(90, 41);
             this.timeLabel.TabIndex = 5;
-            this.timeLabel.Text = "99";
+            this.timeLabel.Text = "65.535s";
             this.timeLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.timeLabel.Click += new System.EventHandler(this.timeLabel_Click);
-            // 
-            // units
-            // 
-            this.units.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.units.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.units.FormattingEnabled = true;
-            this.units.Location = new System.Drawing.Point(297, 6);
-            this.units.Name = "units";
-            this.units.Size = new System.Drawing.Size(81, 28);
-            this.units.TabIndex = 6;
             // 
             // ok
             // 
@@ -335,6 +323,5 @@
         private System.Windows.Forms.Label timeLabel;
         private System.Windows.Forms.Button ok;
         private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.ComboBox units;
     }
 }

@@ -210,6 +210,8 @@
             this.programList.Name = "programList";
             this.programList.Size = new System.Drawing.Size(391, 108);
             this.programList.TabIndex = 4;
+            this.programList.SelectedIndexChanged += new System.EventHandler(this.programList_SelectedIndexChanged);
+            this.programList.DoubleClick += new System.EventHandler(this.programList_DoubleClick);
             // 
             // editButton
             // 

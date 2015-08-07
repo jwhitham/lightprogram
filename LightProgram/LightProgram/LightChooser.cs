@@ -157,5 +157,14 @@ namespace LightProgram
             barChanged(true);
         }
 
+        private void programList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void programList_DoubleClick(object sender, EventArgs e)
+        {
+            editProgram(sender, e);
+        }
     }
 }

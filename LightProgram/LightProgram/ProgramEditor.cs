@@ -395,8 +395,7 @@ namespace LightProgram
                 {
                     this.instructions.SetSelected(index, true);
                     InstructionEditor inst_ed = (InstructionEditor)this.instructions.Items[index];
-                    this.transition.SetInstruction(inst_ed.inst);
-                    this.transition.Show();
+                    editItem(inst_ed);
                 }
                 else
                 {

@@ -119,7 +119,7 @@ namespace LightProgram
 
         private void disconnectClicked(object sender, EventArgs e)
         {
-            this.Hide();
+            this.connectionSetup.Disconnect();
         }
 
         private void runProgram(object sender, EventArgs e)

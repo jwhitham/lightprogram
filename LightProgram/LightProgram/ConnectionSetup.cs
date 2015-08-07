@@ -197,6 +197,7 @@ namespace LightProgram
             this.lightChooser.Hide();
             this.connectButton.Enabled = true;
             this.simulator.Hide();
+            this.comms.Disconnect();
             this.comms = new Comms();
             this.lightChooser.SetComms(this.comms);
         }

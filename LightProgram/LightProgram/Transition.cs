@@ -15,7 +15,7 @@ namespace LightProgram
         private Instruction inst = null;
         private Comms comms = null;
         private static int max_bar_value = 999;
-        private static int min_nonzero_time_value = 39;
+        private static int min_nonzero_time_value = 9;
         private static int max_time_value = 0xffff;
         private int time_value = 0;
         private static double bar_constant =

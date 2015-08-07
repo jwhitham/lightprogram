@@ -89,5 +89,10 @@ namespace LightProgram
         {
             barChanged();
         }
+
+        private void SetDisplay_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

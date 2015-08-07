@@ -118,7 +118,7 @@ namespace LightProgram
 
         private void disconnectClicked(object sender, EventArgs e)
         {
-            this.Close();
+            this.Hide();
         }
 
         private void runProgram(object sender, EventArgs e)

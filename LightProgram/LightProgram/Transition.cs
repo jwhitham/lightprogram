@@ -93,7 +93,7 @@ namespace LightProgram
                 this.time_value = min_nonzero_time_value + (int)Math.Floor(Math.Exp((this.timeBar.Value - 1) / bar_constant));
                 if (this.time_value > max_time_value)
                 {
-                    this.inst.value = max_time_value;
+                    this.time_value = max_time_value;
                 }
             }
             barChanged();

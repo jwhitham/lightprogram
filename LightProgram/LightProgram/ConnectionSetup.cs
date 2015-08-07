@@ -23,7 +23,7 @@ namespace LightProgram
         {
             InitializeComponent();
 
-            this.ports = new List<string> ();
+            this.ports = new List<string>();
             this.timer = new System.Windows.Forms.Timer();
             this.timer.Tick += new EventHandler(TimerTick);
             this.timer.Interval = 100;

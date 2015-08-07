@@ -287,5 +287,10 @@ namespace LightProgram
             e.Cancel = true;
             this.connectionSetup.Disconnect();
         }
+
+        private void Simulator_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

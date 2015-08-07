@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Simulator));
             this.display = new System.Windows.Forms.Label();
             this.light = new System.Windows.Forms.Panel();
             this.programState = new System.Windows.Forms.Label();
@@ -76,11 +77,14 @@
             this.Controls.Add(this.programState);
             this.Controls.Add(this.light);
             this.Controls.Add(this.display);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximumSize = new System.Drawing.Size(234, 158);
             this.MinimumSize = new System.Drawing.Size(234, 158);
             this.Name = "Simulator";
             this.Text = "Device Simulator";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.closeButton);
+            this.Load += new System.EventHandler(this.Simulator_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

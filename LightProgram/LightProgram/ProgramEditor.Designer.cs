@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ProgramEditor));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.instructions = new System.Windows.Forms.ListBox();
             this.button1 = new System.Windows.Forms.Button();
@@ -48,6 +47,7 @@
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.exportButton = new System.Windows.Forms.Button();
             this.importButton = new System.Windows.Forms.Button();
+            this.addWaitButton = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -60,7 +60,7 @@
             this.groupBox1.Controls.Add(this.instructions);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(299, 348);
+            this.groupBox1.Size = new System.Drawing.Size(299, 371);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Instructions";
@@ -71,7 +71,7 @@
             this.instructions.FormattingEnabled = true;
             this.instructions.Location = new System.Drawing.Point(7, 19);
             this.instructions.Name = "instructions";
-            this.instructions.Size = new System.Drawing.Size(286, 316);
+            this.instructions.Size = new System.Drawing.Size(286, 342);
             this.instructions.TabIndex = 0;
             this.instructions.SelectedIndexChanged += new System.EventHandler(this.instructions_SelectedIndexChanged);
             this.instructions.DragDrop += new System.Windows.Forms.DragEventHandler(this.instructionsDragDrop);
@@ -81,7 +81,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(12, 418);
+            this.button1.Location = new System.Drawing.Point(12, 441);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(104, 23);
             this.button1.TabIndex = 1;
@@ -91,7 +91,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(247, 418);
+            this.button3.Location = new System.Drawing.Point(247, 441);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(111, 23);
             this.button3.TabIndex = 3;
@@ -101,7 +101,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(364, 418);
+            this.button4.Location = new System.Drawing.Point(364, 441);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(75, 23);
             this.button4.TabIndex = 4;
@@ -112,7 +112,7 @@
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.namebox);
-            this.groupBox2.Location = new System.Drawing.Point(317, 220);
+            this.groupBox2.Location = new System.Drawing.Point(317, 244);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(122, 49);
             this.groupBox2.TabIndex = 5;
@@ -123,14 +123,14 @@
             // 
             this.namebox.Location = new System.Drawing.Point(6, 20);
             this.namebox.Name = "namebox";
-            this.namebox.Size = new System.Drawing.Size(85, 20);
+            this.namebox.Size = new System.Drawing.Size(107, 20);
             this.namebox.TabIndex = 0;
             this.namebox.TextChanged += new System.EventHandler(this.namebox_TextChanged);
             // 
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.properties);
-            this.groupBox3.Location = new System.Drawing.Point(12, 366);
+            this.groupBox3.Location = new System.Drawing.Point(12, 389);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(427, 46);
             this.groupBox3.TabIndex = 6;
@@ -148,6 +148,7 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.addWaitButton);
             this.groupBox4.Controls.Add(this.edit);
             this.groupBox4.Controls.Add(this.delete);
             this.groupBox4.Controls.Add(this.move_down);
@@ -156,14 +157,14 @@
             this.groupBox4.Controls.Add(this.add_transition);
             this.groupBox4.Location = new System.Drawing.Point(317, 12);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(122, 202);
+            this.groupBox4.Size = new System.Drawing.Size(122, 226);
             this.groupBox4.TabIndex = 7;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Edit Controls";
             // 
             // edit
             // 
-            this.edit.Location = new System.Drawing.Point(6, 139);
+            this.edit.Location = new System.Drawing.Point(6, 165);
             this.edit.Name = "edit";
             this.edit.Size = new System.Drawing.Size(107, 23);
             this.edit.TabIndex = 5;
@@ -173,7 +174,7 @@
             // 
             // delete
             // 
-            this.delete.Location = new System.Drawing.Point(6, 168);
+            this.delete.Location = new System.Drawing.Point(6, 194);
             this.delete.Name = "delete";
             this.delete.Size = new System.Drawing.Size(107, 23);
             this.delete.TabIndex = 4;
@@ -183,7 +184,7 @@
             // 
             // move_down
             // 
-            this.move_down.Location = new System.Drawing.Point(6, 109);
+            this.move_down.Location = new System.Drawing.Point(6, 136);
             this.move_down.Name = "move_down";
             this.move_down.Size = new System.Drawing.Size(107, 23);
             this.move_down.TabIndex = 3;
@@ -193,7 +194,7 @@
             // 
             // move_up
             // 
-            this.move_up.Location = new System.Drawing.Point(6, 79);
+            this.move_up.Location = new System.Drawing.Point(6, 107);
             this.move_up.Name = "move_up";
             this.move_up.Size = new System.Drawing.Size(107, 23);
             this.move_up.TabIndex = 2;
@@ -225,7 +226,7 @@
             // 
             this.groupBox5.Controls.Add(this.exportButton);
             this.groupBox5.Controls.Add(this.importButton);
-            this.groupBox5.Location = new System.Drawing.Point(317, 276);
+            this.groupBox5.Location = new System.Drawing.Point(317, 299);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Size = new System.Drawing.Size(122, 84);
             this.groupBox5.TabIndex = 8;
@@ -252,11 +253,21 @@
             this.importButton.UseVisualStyleBackColor = true;
             this.importButton.Click += new System.EventHandler(this.importButtonClicked);
             // 
+            // addWaitButton
+            // 
+            this.addWaitButton.Location = new System.Drawing.Point(6, 78);
+            this.addWaitButton.Name = "addWaitButton";
+            this.addWaitButton.Size = new System.Drawing.Size(107, 23);
+            this.addWaitButton.TabIndex = 6;
+            this.addWaitButton.Text = "Add Wait";
+            this.addWaitButton.UseVisualStyleBackColor = true;
+            this.addWaitButton.Click += new System.EventHandler(this.addWaitButton_Click);
+            // 
             // ProgramEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(449, 452);
+            this.ClientSize = new System.Drawing.Size(449, 474);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
@@ -265,8 +276,7 @@
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.groupBox1);
-            this.MaximumSize = new System.Drawing.Size(465, 560);
-            this.MinimumSize = new System.Drawing.Size(465, 460);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "ProgramEditor";
             this.Text = "Light Program - Editor";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.closeButton);
@@ -303,5 +313,6 @@
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.Button exportButton;
         private System.Windows.Forms.Button importButton;
+        private System.Windows.Forms.Button addWaitButton;
     }
 }

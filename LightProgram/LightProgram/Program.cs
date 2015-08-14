@@ -533,9 +533,15 @@ namespace LightProgram
                                 SendSerialCommand(bytesOut, Comms.program_size + 1);
                                 bytesOut[0] = (byte)'S'; // save to EEPROM
                                 bytesOut[1] = (byte)cmd.program_number;
-                                this.serialHandle.ReadTimeout = eeprom_write_timeout;
-                                SendSerialCommand(bytesOut, 2);
-                                this.serialHandle.ReadTimeout = timeout;
+                                if (this.serialHandle != null)
+                                {
+                                    this.serialHandle.ReadTimeout = eeprom_write_timeout;
+                                    SendSerialCommand(bytesOut, 2);
+                                }
+                                if (this.serialHandle != null)
+                                {
+                                    this.serialHandle.ReadTimeout = timeout;
+                                }
                                 bytesOut[0] = (byte)'L'; // load program from EEPROM (readback)
                                 bytesOut[1] = (byte)cmd.program_number;
                                 SendSerialCommand(bytesOut, 2);
@@ -593,12 +599,58 @@ namespace LightProgram
         }
     }
 
+    public static class DelayTable
+    {
+        static int[] getDelayTable()
+        {
+            int[] tmp = new int[256];
+            int i;
+
+            for (i = 0; i <= 50; i++)
+            {
+                tmp[i] = i * 10;
+            }
+            for (; i <= 150; i++)
+            {
+                tmp[i] = ((i - 50) * 25) + 500;
+            }
+            for (; i <= 255; i++)
+            {
+                tmp[i] = ((i - 150) * 250) + 3000;
+            }
+            return tmp;
+        }
+
+        static int[] delay_table = getDelayTable();
+
+        public static int indexToDelay(byte i)
+        {
+            return delay_table[(int) i];
+        }
+        public static byte delayToIndex(int d)
+        {
+            // I should write a binary search, but I usually get them wrong,
+            // and this is hardly high performance code, so I save myself the
+            // hassle of debugging the inevitable infinite loop/misuse of
+            // boundary condition mistake.
+            for (int i = 0; i <= 255; i++)
+            {
+                if (d <= delay_table[i])
+                {
+                    return (byte) i;
+                }
+            }
+            return (byte) 255;
+        }
+    }
+
+
     // These classes represent instructions and programs and can be used to
     // serialise/deserialise instructions into byte form
     public enum InstructionType
     {
         InstructionRestart, InstructionSetDisplay,
-        InstructionTransition,
+        InstructionTransition, InstructionWait,
         InstructionIllegal
     };
     public class Instruction
@@ -629,51 +681,19 @@ namespace LightProgram
                     b[0] = (byte)'D';
                     b[1] = (byte)(this.value & 0x1f);
                     return 2;
-                // 1-6 byte
+                // 2 byte
+                case InstructionType.InstructionWait:
+                    b[0] = (byte)'w';
+                    b[1] = DelayTable.delayToIndex(this.value);
+                    return 2;
+                // 5 byte
                 case InstructionType.InstructionTransition:
-                    if (this.value <= 0)
-                    {
-                        if (this.r == 0 && this.g == 0 && this.b == 0)
-                        {
-                            // encode as blackout ('B')
-                            b[0] = (byte)'B';
-                            return 1;
-                        }
-                        else
-                        {
-                            // encode as setcolour 'C'
-                            b[0] = (byte)'C';
-                            b[1] = (byte)(this.r & 0xff);
-                            b[2] = (byte)(this.g & 0xff);
-                            b[3] = (byte)(this.b & 0xff);
-                            return 4;
-                        }
-                    }
-                    else if (this.value <= 255)
-                    {
-                        // encode as fast transition 'T'
-                        b[0] = (byte)'T';
-                        b[1] = (byte)(this.r & 0xff);
-                        b[2] = (byte)(this.g & 0xff);
-                        b[3] = (byte)(this.b & 0xff);
-                        b[4] = (byte)(this.value & 0xff);
-                        return 5;
-                    }
-                    else
-                    {
-                        // encode as slow transition 't'
-                        if (this.value >= 0x10000)
-                        {
-                            this.value = 0xffff;
-                        }
-                        b[0] = (byte)'t';
-                        b[1] = (byte)(this.r & 0xff);
-                        b[2] = (byte)(this.g & 0xff);
-                        b[3] = (byte)(this.b & 0xff);
-                        b[4] = (byte)((this.value & 0xff00) >> 8);
-                        b[5] = (byte)(this.value & 0xff);
-                        return 6;
-                    }
+                    b[0] = (byte)'x';
+                    b[1] = (byte)(this.r & 0xff);
+                    b[2] = (byte)(this.g & 0xff);
+                    b[3] = (byte)(this.b & 0xff);
+                    b[4] = DelayTable.delayToIndex(this.value);
+                    return 5;
                 case InstructionType.InstructionIllegal:
                     return 0;
                 default:
@@ -681,52 +701,65 @@ namespace LightProgram
             }
         }
 
-        public void decode(byte[] b)
+        public int decode(byte[] b)
         {
             this.t = InstructionType.InstructionIllegal;
-            if (b.Length < 1) return;
+            if (b.Length < 1) return 0;
             switch ((char)b[0])
             {
                 case 'R':
                     this.t = InstructionType.InstructionRestart;
-                    return;
+                    return 1;
                 case 'B':
                     this.t = InstructionType.InstructionTransition;
                     this.r = this.g = this.b = 0;
                     this.value = 0;
-                    return;
+                    return 1;
                 case 'D':
-                    if (b.Length < 2) return;
+                    if (b.Length < 2) return 0;
                     this.t = InstructionType.InstructionSetDisplay;
                     this.value = (int)b[1];
-                    return;
+                    return 2;
                 case 'C':
-                    if (b.Length < 4) return;
+                    if (b.Length < 4) return 0;
                     this.t = InstructionType.InstructionTransition;
                     this.r = (int)b[1];
                     this.g = (int)b[2];
                     this.b = (int)b[3];
                     this.value = 0;
-                    return;
+                    return 4;
                 case 'T':
-                    if (b.Length < 5) return;
+                    if (b.Length < 5) return 0;
                     this.t = InstructionType.InstructionTransition;
                     this.r = (int)b[1];
                     this.g = (int)b[2];
                     this.b = (int)b[3];
                     this.value = (int)b[4];
-                    return;
+                    return 5;
                 case 't':
-                    if (b.Length < 6) return;
+                    if (b.Length < 6) return 0;
                     this.t = InstructionType.InstructionTransition;
                     this.r = (int)b[1];
                     this.g = (int)b[2];
                     this.b = (int)b[3];
                     this.value = ((int)b[4]) << 8;
                     this.value |= (int)b[5];
-                    return;
+                    return 6;
+                case 'w':
+                    if (b.Length < 2) return 0;
+                    this.t = InstructionType.InstructionWait;
+                    this.value = DelayTable.indexToDelay(b[1]);
+                    return 2;
+                case 'x':
+                    if (b.Length < 5) return 0;
+                    this.t = InstructionType.InstructionTransition;
+                    this.r = (int)b[1];
+                    this.g = (int)b[2];
+                    this.b = (int)b[3];
+                    this.value = DelayTable.indexToDelay(b[4]);
+                    return 5;
                 default:
-                    return;
+                    return 0;
             }
         }
 
@@ -760,6 +793,8 @@ namespace LightProgram
                     {
                         return "Set Display to " + String.Format("{0:X01}", this.value);
                     }
+                case InstructionType.InstructionWait:
+                    return "Wait for " + this.value + " milliseconds";
                 // 1-6 byte
                 case InstructionType.InstructionTransition:
                     return "Transition to " + getColour() + " in " + this.value + " milliseconds";
@@ -774,13 +809,12 @@ namespace LightProgram
         {
             switch (this.t)
             {
-                // 1 byte
                 case InstructionType.InstructionRestart:
                     return 0;
-                // 2 byte
                 case InstructionType.InstructionSetDisplay:
                     return 0;
-                // 1-6 byte
+                case InstructionType.InstructionWait:
+                    return this.value;
                 case InstructionType.InstructionTransition:
                     return this.value;
                 case InstructionType.InstructionIllegal:
@@ -826,7 +860,6 @@ namespace LightProgram
         public void decode(byte[] program_bytes)
         {
             byte[] slice = new byte[Instruction.max_inst_length];
-            byte[] check = new byte[Instruction.max_inst_length];
 
             // decode each instruction in turn
             this.contents.Clear();
@@ -842,22 +875,17 @@ namespace LightProgram
                 {
                     slice[i] = (byte)0;
                 }
-                inst.decode(slice);
+                int sz = inst.decode(slice);
 
-                // detect illegal instruction
+                // detect illegal instruction or incomplete instruction
                 if (inst.t == InstructionType.InstructionIllegal) break;
 
-                int sz = inst.getSize();
-                a += sz;
-                inst.encode(check);
-                for (i = 0; i < sz; i++)
+                if (sz <= 0)
                 {
-                    if (check[i] != slice[i])
-                    {
-                        // decoder/encoder error
-                        throw new Exception("decoded instruction does not match original (1)");
-                    }
+                    inst.t = InstructionType.InstructionIllegal;
+                    break;
                 }
+                a += sz;
 
                 // detect end of program (don't add to list)
                 if (inst.t == InstructionType.InstructionRestart) break;

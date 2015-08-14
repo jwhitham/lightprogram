@@ -9,14 +9,14 @@ using System.Windows.Forms;
 
 namespace LightProgram
 {
-    public partial class Transition : Form
+    public partial class Wait : Form
     {
         private ProgramEditor programEditor = null;
         private Instruction inst = null;
         private Comms comms = null;
         private int time_value = 0;
 
-        public Transition(ProgramEditor programEditor)
+        public Wait(ProgramEditor programEditor)
         {
             this.programEditor = programEditor;
             this.comms = new Comms();
@@ -28,9 +28,6 @@ namespace LightProgram
 
         public void SetInstruction(Instruction inst)
         {
-            this.redBar.Value = inst.r;
-            this.greenBar.Value = inst.g;
-            this.blueBar.Value = inst.b;
             this.timeBar.Value = DelayTable.delayToIndex(inst.value);
             this.time_value = inst.value;
             this.inst = inst;
@@ -44,29 +41,7 @@ namespace LightProgram
 
         private void barChanged()
         {
-            this.comms.SetColour(this.redBar.Value, this.greenBar.Value, this.blueBar.Value);
-            Command c = new Command();
-            c.t = CommandType.CommandGetColour;
-            this.comms.SendCommand(c);
-            this.redLabel.Text = String.Format("{0:X02}", this.redBar.Value);
-            this.greenLabel.Text = String.Format("{0:X02}", this.greenBar.Value);
-            this.blueLabel.Text = String.Format("{0:X02}", this.blueBar.Value);
             this.timeLabel.Text = String.Format("{0:D}.{1:D03}s", this.time_value / 1000, this.time_value % 1000);
-        }
-
-        private void redChanged(object sender, EventArgs e)
-        {
-            barChanged();
-        }
-
-        private void greenChanged(object sender, EventArgs e)
-        {
-            barChanged();
-        }
-
-        private void blueChanged(object sender, EventArgs e)
-        {
-            barChanged();
         }
 
         private void timeChanged(object sender, EventArgs e)
@@ -100,9 +75,6 @@ namespace LightProgram
             {
                 return;
             }
-            this.inst.r = this.redBar.Value;
-            this.inst.g = this.greenBar.Value;
-            this.inst.b = this.blueBar.Value;
             this.inst.value = this.time_value;
             this.programEditor.refreshInstruction(this.inst);
             this.inst = null;

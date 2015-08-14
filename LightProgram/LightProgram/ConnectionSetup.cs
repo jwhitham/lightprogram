@@ -36,7 +36,7 @@ namespace LightProgram
             }
             this.connectionInfo.ReadOnly = true;
             this.connectionInfo.Clear();
-            this.AppendText("Light Program");
+            this.AppendText("Light Program - for Jilly!\n");
             this.simulator = new Simulator(this);
             this.lightChooser = new LightChooser(this);
             this.comms = new Comms();

@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SetDisplay));
             this.cancel = new System.Windows.Forms.Button();
             this.ok = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -132,6 +131,7 @@
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.cancel);
             this.Controls.Add(this.ok);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "SetDisplay";
             this.Text = "Light Program - Set Display";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.closeButton);

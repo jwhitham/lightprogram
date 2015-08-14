@@ -76,6 +76,12 @@
     <Compile Include="SetDisplay.Designer.cs">
       <DependentUpon>SetDisplay.cs</DependentUpon>
     </Compile>
+    <Compile Include="Wait.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Wait.Designer.cs">
+      <DependentUpon>Wait.cs</DependentUpon>
+    </Compile>
     <Compile Include="Transition.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -129,6 +135,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="Wait.resx">
+      <DependentUpon>Wait.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Transition.resx">
       <DependentUpon>Transition.cs</DependentUpon>
     </EmbeddedResource>

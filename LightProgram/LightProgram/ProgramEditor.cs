@@ -18,6 +18,8 @@ namespace LightProgram
         private int program_number = -1;
         private Transition transition = null;
         private SetDisplay set_display = null;
+        private Wait wait = null;
+        private Instruction last_added_wait = null;
         private Instruction last_added_transition = null;
         private static string save_filter = "Light Program files|*.lightprogram";
         private string save_filename = null;
@@ -44,6 +46,7 @@ namespace LightProgram
             InitializeComponent();
             this.transition = new Transition(this);
             this.set_display = new SetDisplay(this);
+            this.wait = new Wait(this);
             this.Icon = Properties.Resources.rgb;
         }
 
@@ -52,6 +55,7 @@ namespace LightProgram
             this.comms = comms;
             this.transition.SetComms(comms);
             this.set_display.SetComms(comms);
+            this.wait.SetComms(comms);
         }
 
         public void SetProgram(InstructionList inst_list, int program_number)
@@ -235,6 +239,10 @@ namespace LightProgram
                     this.set_display.SetInstruction(inst_ed.inst);
                     this.set_display.Show();
                     break;
+                case InstructionType.InstructionWait:
+                    this.wait.SetInstruction(inst_ed.inst);
+                    this.wait.Show();
+                    break;
                 default:
                     break;
             }
@@ -259,6 +267,17 @@ namespace LightProgram
         {
             Instruction inst = new Instruction();
             inst.t = InstructionType.InstructionSetDisplay;
+            insertAndEdit(inst);
+        }
+
+        private void addWaitButton_Click(object sender, EventArgs e)
+        {
+            Instruction inst = new Instruction();
+            inst.t = InstructionType.InstructionWait;
+            if (last_added_wait != null)
+            {
+                inst.value = last_added_wait.value;
+            }
             insertAndEdit(inst);
         }
 
@@ -323,6 +342,10 @@ namespace LightProgram
             if (inst.t == InstructionType.InstructionTransition)
             {
                 last_added_transition = inst;
+            }
+            if (inst.t == InstructionType.InstructionWait)
+            {
+                last_added_wait = inst;
             }
             int i, j = this.instructions.Items.Count;
             for (i = 0; i < j; i++)

@@ -18,6 +18,7 @@ unsigned current_program = 0;
 unsigned free_run = 1;
 unsigned char r, g, b;
 unsigned char r1, g1, b1;
+unsigned delay_table[256];
 
 
 ////////////////////////////////////
@@ -326,7 +327,7 @@ void pc_mode ()
 // Main program
 void loop() 
 {
-  unsigned tmp, undo;
+  unsigned tmp;
   signed char key;
 
   // Check for PC mode (commands from the PC)
@@ -354,8 +355,21 @@ void loop()
     return;
   }
 
+  // Detect preceding illegal instruction
+  if (program_counter >= 0x8000)
+  {    
+    program_counter++;
+	program_counter |= 0x8000;
+	if (program_counter & 0x7000)
+	{
+	  set_display (0xe);
+	} else {
+	  set_display (0x10);
+	}
+    return;
+  }
+
   // Run the next program instruction
-  undo = program_counter;
   switch (get_program_byte()) {
     case 'R':
       // Re-run current program
@@ -393,10 +407,22 @@ void loop()
       tmp |= (unsigned) get_program_byte ();
       transition (tmp);
       break;
+    case 'w':
+	  // Wait
+	  r1 = r; g1 = g; b1 = b;
+	  transition (delay_table[(unsigned) get_program_byte()]);
+	  break;
+	case 'x':
+	  // Transition (type 2)
+      r1 = get_program_byte();
+      g1 = get_program_byte();
+      b1 = get_program_byte();
+      transition (delay_table[(unsigned) get_program_byte()]);
+	  break;
     default:
       // Illegal opcode; program crashes (freezes at same location)
       set_display(0xe);
-      program_counter = undo;
+      program_counter = 0xffff;
       break;
   }
 }
@@ -420,12 +446,20 @@ void setup()
     isr[i].copy_counter = 0;
     attachInterrupt (i, isr_fn, CHANGE);
   }
+  for (i = 0; i <= 50; i++) {
+    delay_table[i] = i * 10;
+  }
+  for (; i <= 150; i++) {
+    delay_table[i] = ((i - 50) * 25) + 500;
+  }
+  for (; i <= 255; i++) {
+    delay_table[i] = ((i - 150) * 250) + 3000;
+  }
   program_counter = 0;
   current_program = 0;
   r = g = b = 0;
   r1 = g1 = b1 = 0;
   free_run = 1;
-  set_display (0xf);
   load_program ();
   set_display (current_program);
 }
